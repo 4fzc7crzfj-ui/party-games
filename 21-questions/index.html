@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#140a2e">
+<title>21 Questions</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#140a2e;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Rounded","Segoe UI",Roboto,sans-serif}
+body{background:radial-gradient(circle at 20% 0%,#3b1d7a 0,#140a2e 55%),#140a2e;background-attachment:fixed;-webkit-user-select:none;user-select:none}
+#app{max-width:520px;margin:0 auto;min-height:100%;padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 20px)}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;min-height:48px}
+.brand{font-weight:800;font-size:20px;background:linear-gradient(90deg,#ff5fa2,#ffc75f);-webkit-background-clip:text;background-clip:text;color:transparent}
+.screen{display:none;animation:fade .25s}.screen.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h1{font-size:38px;margin:10px 0 6px;text-align:center;line-height:1.05}
+h2{font-size:26px;margin:6px 0 14px;text-align:center}
+p.sub{color:#c9bdf0;text-align:center;margin:0 0 18px;font-size:16px}
+.btn{display:block;width:100%;min-height:58px;border:0;border-radius:18px;font-size:19px;font-weight:700;color:#fff;margin:10px 0;padding:14px;background:#2c1a5c;box-shadow:0 4px 0 rgba(0,0,0,.35);cursor:pointer;font-family:inherit}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
+.pink{background:linear-gradient(135deg,#ff4f9a,#c03bff)}.gold{background:linear-gradient(135deg,#ffb347,#ff7a3d);color:#2a1300}
+.green{background:linear-gradient(135deg,#22c55e,#0e9f6e)}.red{background:linear-gradient(135deg,#f43f5e,#be123c)}
+.amber{background:linear-gradient(135deg,#f59e0b,#d97706)}.ghost{background:transparent;border:2px solid #5b46a0;box-shadow:none}
+.small{min-height:48px;font-size:16px;width:auto;display:inline-block;padding:10px 16px;margin:0}
+.big-card{background:linear-gradient(160deg,#2a1760,#1d0f45);border:1px solid #4b3593;border-radius:24px;padding:20px;margin:10px 0}
+.mode{text-align:left;min-height:110px}.mode b{display:block;font-size:24px}.mode span{font-weight:500;font-size:15px;opacity:.9}
+input,select{width:100%;min-height:54px;border-radius:14px;border:2px solid #5b46a0;background:#0f0726;color:#fff;font-size:18px;padding:10px 14px;margin:6px 0 10px;font-family:inherit;-webkit-user-select:text;user-select:text}
+label{font-size:14px;color:#c9bdf0;font-weight:600}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+.chip{min-height:44px;padding:8px 14px;border-radius:22px;border:2px solid #5b46a0;background:transparent;color:#fff;font-size:15px;font-weight:600;font-family:inherit}
+.chip.sel{background:#ff4f9a;border-color:#ff4f9a}
+.count{font-size:96px;font-weight:900;text-align:center;line-height:1;background:linear-gradient(180deg,#fff,#ffc75f);-webkit-background-clip:text;background-clip:text;color:transparent}
+.count.low{background:linear-gradient(180deg,#fff,#f43f5e);-webkit-background-clip:text;background-clip:text}
+.ans3{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ans3 .btn{margin:0;min-height:72px;font-size:22px}.ans3 .full{grid-column:1/3;min-height:60px;font-size:19px}
+.log{list-style:none;padding:0;margin:8px 0;max-height:240px;overflow:auto}
+.log li{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:#1d0f45;margin:6px 0;font-size:15px}
+.tag{font-weight:800;border-radius:8px;padding:3px 8px;font-size:13px;white-space:nowrap}
+.t-y{background:#16a34a}.t-n{background:#e11d48}.t-m{background:#d97706}.t-g{background:#6d28d9}
+.secret{font-size:34px;font-weight:900;text-align:center;padding:26px 10px;border-radius:20px;background:#0f0726;border:2px dashed #ff4f9a;margin:12px 0;word-break:break-word}
+.secret.hid{filter:blur(14px)}
+.score{display:flex;justify-content:space-around;text-align:center;font-size:15px;color:#c9bdf0}.score b{display:block;font-size:34px;color:#fff}
+.q{font-size:27px;font-weight:800;line-height:1.25;text-align:center;min-height:200px;display:flex;align-items:center;justify-content:center;padding:10px}
+.prog{height:10px;background:#1d0f45;border-radius:6px;overflow:hidden;margin:8px 0}.prog i{display:block;height:100%;background:linear-gradient(90deg,#ff4f9a,#ffc75f);width:0;transition:width .3s}
+.meta{display:flex;justify-content:space-between;color:#c9bdf0;font-weight:700}
+.turn{text-align:center;font-size:18px;color:#ffc75f;font-weight:800;min-height:24px}
+.decks .btn{text-align:left}.decks .btn span{display:block;font-size:14px;font-weight:500;opacity:.85}
+.overlay{position:fixed;inset:0;background:rgba(5,2,15,.82);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+.overlay.on{display:flex}
+.dlg{background:#21124f;border:1px solid #5b46a0;border-radius:24px;padding:22px;width:100%;max-width:420px;text-align:center}
+.dlg h3{font-size:24px;margin:4px 0 10px}.dlg p{color:#d8ceff;font-size:17px}
+.center{text-align:center}.muted{color:#a99bd8;font-size:14px}
+</style></head><body><div id="app">
+<div class="top"><div class="brand">21 Questions</div><button class="btn small ghost" id="menuBtn" data-act="menu">☰ Menu</button></div>
+
+<section class="screen on" id="s-home">
+ <h1>21<br>Questions</h1><p class="sub">Pick a game to play</p>
+ <button class="btn pink mode" data-act="giStart"><b>🕵️ Guess It</b><span>Classic: think of something, they get 21 yes/no questions.</span></button>
+ <button class="btn gold mode" data-act="gkStart"><b>💬 Get to Know You</b><span>21 conversation questions from fun decks.</span></button>
+</section>
+
+<section class="screen" id="s-gisetup">
+ <h2>Guess It</h2>
+ <div class="big-card">
+  <div class="row"><div><label>Player 1</label><input id="p1" maxlength="16" placeholder="Player 1"></div><div><label>Player 2</label><input id="p2" maxlength="16" placeholder="Player 2"></div></div>
+  <div class="score"><div><b id="sc1">0</b><span id="scn1">P1</span></div><div><b id="sc2">0</b><span id="scn2">P2</span></div></div>
+ </div>
+ <p class="turn" id="roleLine"></p>
+ <div class="big-card">
+  <label>Secret (only the setter looks!)</label>
+  <input id="secretIn" type="password" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Type your secret thing">
+  <label>Category (optional)</label>
+  <div class="chips" id="catChips"></div>
+  <button class="btn pink" data-act="useTyped">Use my secret</button>
+  <button class="btn gold" data-act="giveOne">🎲 Give me one</button>
+ </div>
+</section>
+
+<section class="screen" id="s-gireveal">
+ <h2>Your secret</h2><p class="sub" id="revCat"></p>
+ <div class="secret hid" id="revSecret"></div>
+ <button class="btn ghost" data-act="toggleReveal" id="revToggle">👁 Reveal</button>
+ <button class="btn ghost" data-act="giveOne">🎲 Another one</button>
+ <button class="btn pink" data-act="handOver">Got it, hand over</button>
+</section>
+
+<section class="screen" id="s-giplay">
+ <p class="turn" id="playLine"></p>
+ <div class="count" id="count">21</div><p class="sub" style="margin-top:4px">questions left <span id="catHint"></span></p>
+ <input id="qText" maxlength="80" placeholder="Question text (optional)">
+ <div class="ans3">
+  <button class="btn green" data-act="ans" data-v="y">Yes</button>
+  <button class="btn red" data-act="ans" data-v="n">No</button>
+  <button class="btn amber full" data-act="ans" data-v="m">Sometimes / Maybe</button>
+ </div>
+ <button class="btn pink" data-act="guess" style="min-height:64px;font-size:22px">🎯 Guess!</button>
+ <ul class="log" id="log"></ul>
+ <button class="btn ghost small" data-act="undo">↶ Undo last</button>
+ <button class="btn ghost small" data-act="peek">👁 Setter peek</button>
+</section>
+
+<section class="screen" id="s-giresult">
+ <h1 id="resTitle"></h1><p class="sub" id="resSub"></p>
+ <p class="center muted">The secret was</p><div class="secret" id="resSecret"></div>
+ <div class="big-card score"><div><b id="rs1">0</b><span id="rsn1"></span></div><div><b id="rs2">0</b><span id="rsn2"></span></div></div>
+ <button class="btn pink" data-act="giNext">Next round (swap roles) ➜</button>
+ <button class="btn ghost" data-act="resetScores">Reset scores</button>
+</section>
+
+<section class="screen" id="s-gkdeck">
+ <h2>Get to Know You</h2>
+ <div class="big-card"><label>Players (optional, comma separated)</label><input id="gkNames" placeholder="e.g. Sam, Alex, Jo"></div>
+ <div class="decks" id="decks"></div>
+</section>
+
+<section class="screen" id="s-gkplay">
+ <div class="meta"><span id="gkDeckName"></span><span id="gkCount">1/21</span></div>
+ <div class="prog"><i id="gkProg"></i></div>
+ <p class="turn" id="gkTurn"></p>
+ <div class="big-card"><div class="q" id="gkQ"></div></div>
+ <div class="row"><button class="btn ghost" data-act="gkBack">◀ Back</button><button class="btn ghost" data-act="gkSkip">Skip ⤼</button></div>
+ <button class="btn gold" data-act="gkNext" style="min-height:66px;font-size:22px">Next ➜</button>
+</section>
+
+<section class="screen" id="s-gkend">
+ <h1>🎉 21 done!</h1><p class="sub" id="gkEndSub"></p>
+ <button class="btn gold" data-act="gkAnother">Another 21</button>
+ <button class="btn ghost" data-act="gkStart">Change deck</button>
+ <button class="btn ghost" data-act="home">Home</button>
+</section>
+</div>
+
+<div class="overlay" id="ov"><div class="dlg"><h3 id="dlgT"></h3><p id="dlgM"></p><div id="dlgB"></div></div></div>
+
+<script>
+(function(){
+"use strict";
+var LS={get:function(k,d){try{var v=window.localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}},
+ set:function(k,v){try{window.localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
+function $(id){return document.getElementById(id);}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+
+var SECRETS={
+Person:"Albert Einstein|Taylor Swift|Cleopatra|Santa Claus|Shakespeare|Elvis Presley|Harry Potter|Mona Lisa|Napoleon|Beyoncé|Spider-Man|Barack Obama|Marie Curie|Sherlock Holmes|Batman|Leonardo da Vinci|Michael Jordan|Queen Elizabeth II|Mickey Mouse|Steve Jobs|Frida Kahlo|Darth Vader|The Tooth Fairy|Usain Bolt".split("|"),
+Animal:"Kangaroo|Penguin|Giraffe|Octopus|Koala|Elephant|Shark|Platypus|Owl|Dolphin|Cat|Dog|Snail|Butterfly|Crocodile|Panda|Flamingo|Bat|Horse|Wombat|Jellyfish|Sloth|Eagle|Goldfish".split("|"),
+Place:"Paris|The Moon|Sydney Opera House|Mount Everest|A library|The beach|Disneyland|The Great Wall of China|An airport|Antarctica|A hospital|Las Vegas|The Sahara Desert|Hogwarts|Uluru|A supermarket|New York|The Amazon Rainforest|A swimming pool|Tokyo".split("|"),
+Object:"Umbrella|Toothbrush|Smartphone|Guitar|Bicycle|Mirror|Candle|Trampoline|Backpack|Light bulb|Scissors|Pillow|Skateboard|Television|Key|Sunglasses|Clock|Balloon|Hammer|Rubber duck|Telescope|Paperclip".split("|"),
+Food:"Pizza|Sushi|Vegemite|Chocolate|Banana|Pavlova|Popcorn|Spaghetti|Ice cream|Avocado|Taco|Pineapple|Meat pie|Pancakes|Watermelon|Cheese|Donut|Burger|Lamington|Honey".split("|")
+};
+SECRETS.Anything=[].concat(SECRETS.Person,SECRETS.Animal,SECRETS.Place,SECRETS.Object,SECRETS.Food,"Rainbow|Wi-Fi|Birthday party|Thunderstorm|Snowman|Fireworks|Volcano|Robot".split("|"));
+var CATS=["Anything","Person","Animal","Place","Object","Food"];
+
+function D(s){return s.split("|");}
+var DECKS={
+friends:{name:"Friends & Party",icon:"🎈",cls:"pink",desc:"Easy, fun icebreakers",q:D("What's the best party you've ever been to?|Who in this room would survive longest in a zombie apocalypse?|What's your go-to karaoke song?|What's the most spontaneous thing you've ever done?|What's your hidden talent?|If you could live in any TV show, which would it be?|What's the best gift you've ever received?|What was your first concert?|What's your favourite holiday memory?|Which celebrity would you want as your best friend?|What's your dream holiday destination?|What's your signature dance move?|What's the weirdest food you've ever tried?|What's your go-to comfort movie?|What's a skill you'd love to master instantly?|What's the best advice you've ever received?|Who was your childhood hero?|What's your favourite board or party game?|What job would you do if money didn't matter?|What's your ideal weekend?|What app do you use way too much?|What's the funniest thing that happened to you this year?|If you had a theme song, what would it be?|What's the best meal you've ever eaten?|What's one thing on your bucket list?|Are you a morning person or a night owl?|What's your most-used emoji?|What fictional character are you most like?|What would your last meal be?|What's your favourite thing about the person on your left?|What's the best concert or show you've seen live?|Cats or dogs, and why?|What's your favourite season and why?|What was your favourite toy as a kid?|What would you name your boat?|What's the most useless thing you know a lot about?|What's your favourite way to spend a rainy day?|If you won the lottery, what's the first thing you'd buy?|What's your favourite smell?|Which decade's fashion would you bring back?|Who's the most famous person you've met?|Beach holiday or city break?|What's a song that always gets you dancing?|What's the best thing you've bought for under $20?|What's your favourite snack?|What was your first job?|What's the last thing that made you laugh out loud?|What superpower would you pick?|What's your star sign and do you believe in it?|What would your perfect pizza have on it?|What's a movie you can quote by heart?|What's the best road trip you've taken?|What's a trend you never understood?|What's your coffee or tea order?|What's the nicest thing a stranger has done for you?|If you could have dinner with anyone, who?|What's your most treasured possession?|What's your favourite thing to cook?|What's a hobby you'd like to pick up?|What's the best birthday you've ever had?|What's your favourite word?|Who here have you known the longest, and how did you meet?|What's a guilty-pleasure TV show you love?")},
+deep:{name:"Deep Talk",icon:"🌙",cls:"",desc:"Meaningful, thoughtful questions",q:D("What are you most grateful for right now?|What does a perfect day look like for you?|What's something you've changed your mind about?|What's a fear you've overcome?|Who has influenced you the most?|What's your proudest accomplishment?|What do you value most in a friendship?|What would you tell your younger self?|When do you feel most like yourself?|What's a lesson you learned the hard way?|What does success mean to you?|What's something you want to be remembered for?|What's a dream you haven't told many people?|What makes you feel loved?|What's the hardest decision you've ever made?|What's something you're still learning to accept?|What's a moment that changed your life?|What do you think happens after we die?|What's a belief you hold that others might disagree with?|What are you most afraid of losing?|When was the last time you cried, and why?|What's something you wish more people understood about you?|What's a habit you'd like to break?|If you could relive one day, which would it be?|What would you do if you knew you couldn't fail?|What's a compliment you'll never forget?|How do you handle stress?|What does home mean to you?|What's something you forgive yourself for?|What's a risk you're glad you took?|What do you need more of in your life?|What do you need less of in your life?|Who do you go to when things get tough?|What's your love language?|What's a small thing that brings you joy?|What's your biggest regret, if any?|What's the kindest thing you've done that nobody knows about?|How have you changed in the last five years?|What's something you're curious about lately?|Where do you see yourself in ten years?|What's a tradition you want to keep forever?|What's your relationship with your family like?|What's a quality you admire in others?|What do you think your purpose is?|What's something that always calms you down?|What's a book or film that changed how you think?|What makes you trust someone?|What's the best thing about getting older?|What's something you're proud of but rarely talk about?|What do you wish you had more time for?|What do you think is your biggest strength?|What would your ideal life look like in one sentence?|What's a goal you're working towards?|What's something that made you feel brave?|If you could change one thing about the world, what would it be?|What's a memory that always makes you smile?|What does a good friend do that others don't?|What's something you'd like to say to someone but haven't?|How do you want people to feel after spending time with you?|What did you learn from your first heartbreak?|What's a place that feels sacred to you?|What's the most important thing in your life right now?")},
+wyr:{name:"Would You Rather",icon:"⚖️",cls:"gold",desc:"Impossible choices",q:D("Would you rather be able to fly or be invisible?|Would you rather never use social media again or never watch TV again?|Would you rather live in the city or the countryside?|Would you rather have unlimited money or unlimited time?|Would you rather be famous or rich and unknown?|Would you rather explore space or the deep ocean?|Would you rather always be 10 minutes late or 20 minutes early?|Would you rather speak every language or play every instrument?|Would you rather live without music or without movies?|Would you rather have a rewind button or a pause button for life?|Would you rather eat pizza or tacos forever?|Would you rather be too hot or too cold?|Would you rather read minds or see the future?|Would you rather have no phone or no internet for a month?|Would you rather live in the past or the future?|Would you rather fight one horse-sized duck or 100 duck-sized horses?|Would you rather be a genius or super attractive?|Would you rather never eat chocolate or never eat cheese again?|Would you rather have a personal chef or a personal driver?|Would you rather talk to animals or speak to ghosts?|Would you rather lose your sense of taste or smell?|Would you rather be the funniest or the smartest person in the room?|Would you rather live on a boat or in a treehouse?|Would you rather know how you die or when you die?|Would you rather have a dragon or be a dragon?|Would you rather sing everything or dance everywhere you go?|Would you rather give up coffee or give up sugar?|Would you rather be stuck on a desert island alone or with someone you dislike?|Would you rather always say what you think or never speak again?|Would you rather have a photographic memory or be able to forget anything?|Would you rather win an Oscar or an Olympic gold?|Would you rather have a pet dinosaur or a pet unicorn?|Would you rather never be stuck in traffic or never get sick?|Would you rather be a kid again or skip to retirement?|Would you rather sweat honey or cry maple syrup?|Would you rather live in Harry Potter's world or Star Wars?|Would you rather have free flights for life or free food for life?|Would you rather have a third eye or a third arm?|Would you rather live without air-con or without heating?|Would you rather be a famous actor or a famous musician?|Would you rather only whisper or only shout?|Would you rather have a rewind on conversations or mute on people?|Would you rather go to the beach or the snow?|Would you rather have no eyebrows or one giant eyebrow?|Would you rather know every secret or have no one know yours?|Would you rather be able to teleport or time travel?|Would you rather eat only sweet or only savoury forever?|Would you rather be the best player on a losing team or worst on a winning team?|Would you rather be a superhero or a supervillain?|Would you rather have a house full of cats or a house full of dogs?|Would you rather always have wet socks or a pebble in your shoe?|Would you rather host a party or attend one?|Would you rather never have to sleep or never have to eat?|Would you rather live 200 years in the past or 200 years in the future?|Would you rather have a giant mansion or a tiny house anywhere in the world?|Would you rather be really tall or really short?|Would you rather have breakfast for dinner or dinner for breakfast?|Would you rather lose your phone or your wallet?|Would you rather swim with sharks or jump out of a plane?|Would you rather have every red light turn green or never wait in a queue?|Would you rather be able to breathe underwater or survive without water?|Would you rather have a talking car or a talking fridge?")},
+funny:{name:"Funny / Random",icon:"🤪",cls:"amber",desc:"Silly and absurd",q:D("If animals could talk, which would be the rudest?|What would your wrestling name be?|What's the weirdest thing you've Googled?|If you were a vegetable, which would you be?|What would be the worst superpower to have?|What's the dumbest way you've ever hurt yourself?|If your pet could talk, what would it complain about?|What's the strangest dream you've had?|What would your fast-food restaurant be called?|What conspiracy theory would you start?|What would be your villain origin story?|What's the most embarrassing song you know all the words to?|If you were a ghost, who would you haunt?|Which household object would be the worst roommate?|What's the worst haircut you've ever had?|If you could make one silly law, what would it be?|What would you do if you were a cat for a day?|What's your most irrational fear?|What would the title of your autobiography be?|If you were an ice cream flavour, what would you be?|What's the weirdest thing you believed as a kid?|What would your warning label say?|What's the worst pickup line you know?|Which cartoon character would you date?|If you had to eat one condiment on everything, which?|What's your most useless skill?|What's the funniest autocorrect fail you've had?|If you were a dog, what breed would you be?|What's the weirdest thing in your fridge right now?|What would aliens find most confusing about humans?|What's the worst gift you've ever received?|What would you name a pet rock?|If you could swap lives with an animal, which?|What's the most ridiculous thing you've bought?|What's the silliest thing you've cried over?|If your life were a sitcom, what would it be called?|What food would you ban forever?|What's your best impression?|Which emoji best describes your week?|If you were a kitchen appliance, which?|What's the most awkward thing that's happened on a date?|What's the strangest nickname you've had?|If you were a flavour of crisps, what would you be?|What would your ringtone be if it described you?|What would be the worst thing to say at a wedding?|If you could only communicate in one movie quote, which?|What would you do with a pet T-rex?|What's the weirdest talent someone in this room has?|What's the funniest thing you've seen on public transport?|If you were a fruit, how would you be insulted?|What would your superhero sidekick be?|What's the worst job you can imagine?|What would happen if you were in charge of the country for a day?|What's a word you always mispronounce?|What would you rename the days of the week?|What's the most embarrassing thing in your search history (safe version)?|If you were a font, which would you be?|What would be inside your secret lair?|What sound do you make when you sneeze?|What's the worst flavour of jelly bean imaginable?|If your shoes could talk, what would they say?|What's your go-to excuse for being late?")},
+spicy:{name:"Spicy 18+",icon:"🌶️",cls:"red",desc:"Cheeky, flirty, not explicit",adult:true,q:D("What's your biggest turn-on in a person's personality?|What's the cheesiest pickup line that would actually work on you?|Who was your first crush?|What's the most romantic thing someone has done for you?|What's your idea of a perfect date?|Have you ever had a crush on a friend's sibling?|What's the boldest thing you've done to get someone's attention?|What's your biggest dating red flag?|What's your biggest dating green flag?|What's the worst date you've ever been on?|Have you ever slid into someone's DMs?|What's the most embarrassing thing you've done in front of a crush?|What feature do you notice first on someone?|Have you ever kissed someone you just met?|What's the longest you've gone without a kiss?|Who in this room would be the best kisser, in your opinion?|What's your favourite flirting move?|Have you ever been caught checking someone out?|What's the most daring outfit you've worn?|What's a fantasy date location?|What's your guilty pleasure romance movie?|Have you ever sent a text to the wrong person?|What's the cheekiest secret you're willing to share?|What song puts you in a romantic mood?|What's the flirtiest message you've ever sent?|Have you ever had a holiday romance?|Who was your celebrity hall pass growing up?|What's the most spontaneous romantic thing you've done?|Have you ever gone skinny dipping?|What do you find most attractive in a voice?|What's your most memorable kiss?|Would you rather a candlelit dinner or a wild night out?|Have you ever had a crush on a teacher?|What's the most you've spent on a date?|What's your favourite thing to be complimented on?|Have you ever pretended to like something to impress a date?|What's your love-life in three emojis?|What's your go-to date-night outfit?|Have you ever been on a blind date?|What's a flirty nickname you'd secretly like?|Have you ever been in love with two people at once?|Would you date someone with the opposite political views?|What's your most awkward first-kiss story?|What's the boldest compliment you've ever given?|Who here would you trust to set you up on a date?|What's the most romantic city you can imagine?|Have you ever written a love letter?|What's something that instantly makes someone more attractive?|What's your biggest weakness when it comes to romance?|What's one thing you'd never do on a first date?|What's the cheekiest thing on your bucket list?|Have you ever ghosted someone?|Have you ever been ghosted?|Morning cuddles or late-night talks?|What's the most attractive hobby someone can have?|Have you ever had a secret admirer?|What's the most flirtatious emoji?|What's the wildest thing you've done at a party?|What's your type, in one sentence?|Have you ever fallen for someone at first sight?|What's a cheeky truth about you nobody here knows?|What's the best kiss you've ever seen in a movie?")}
+};
+
+/* ---------- navigation & overlay ---------- */
+var ov=$("ov");
+function closeOverlay(){ov.classList.remove("on");$("dlgB").innerHTML="";dlgCbs=[];}
+var dlgCbs=[];
+function dialog(title,msg,buttons){
+  $("dlgT").textContent=title;$("dlgM").textContent=msg;dlgCbs=[];
+  $("dlgB").innerHTML=buttons.map(function(b,i){dlgCbs.push(b.fn||null);return '<button class="btn '+(b.cls||"")+'" data-dlg="'+i+'">'+esc(b.label)+'</button>';}).join("");
+  ov.classList.add("on");
+}
+ov.addEventListener("click",function(e){
+  var b=e.target.closest("[data-dlg]");
+  if(!b){if(e.target===ov&&ov.dataset.lock!=="1")closeOverlay();return;}
+  var fn=dlgCbs[+b.dataset.dlg];closeOverlay();if(fn)fn();
+});
+var cur="home";
+function show(name){
+  closeOverlay();
+  try{document.activeElement&&document.activeElement.blur&&document.activeElement.blur();}catch(e){}
+  var s=document.querySelectorAll(".screen");for(var i=0;i<s.length;i++)s[i].classList.toggle("on",s[i].id==="s-"+name);
+  cur=name;window.scrollTo(0,0);
+}
+
+/* ---------- Guess It ---------- */
+var G=LS.get("q21_gi",null)||{names:["",""],scores:[0,0],setter:0};
+if(!G.names||!G.scores){G={names:["",""],scores:[0,0],setter:0};}
+var R={secret:"",cat:"Anything",left:21,log:[],revealed:false};
+function nm(i){return (G.names[i]||"").trim()||("Player "+(i+1));}
+function saveG(){LS.set("q21_gi",G);}
+function renderSetup(){
+  $("p1").value=G.names[0]||"";$("p2").value=G.names[1]||"";
+  $("sc1").textContent=G.scores[0];$("sc2").textContent=G.scores[1];$("scn1").textContent=nm(0);$("scn2").textContent=nm(1);
+  $("roleLine").textContent="🤫 "+nm(G.setter)+" sets the secret — "+nm(1-G.setter)+" look away!";
+  $("catChips").innerHTML=CATS.map(function(c){return '<button class="chip'+(c===R.cat?" sel":"")+'" data-act="cat" data-v="'+c+'">'+c+'</button>';}).join("");
+}
+function readNames(){G.names=[$("p1").value.slice(0,16),$("p2").value.slice(0,16)];saveG();}
+["p1","p2"].forEach(function(id){$(id).addEventListener("input",function(){readNames();$("scn1").textContent=nm(0);$("scn2").textContent=nm(1);$("roleLine").textContent="🤫 "+nm(G.setter)+" sets the secret — "+nm(1-G.setter)+" look away!";});});
+function startPlay(){R.left=21;R.log=[];$("qText").value="";renderPlay();show("giplay");}
+function renderPlay(){
+  var c=$("count");c.textContent=R.left;c.classList.toggle("low",R.left<=5);
+  $("playLine").textContent="❓ "+nm(1-G.setter)+" asks · "+nm(G.setter)+" answers";
+  $("catHint").textContent=R.cat!=="Anything"?"· Category: "+R.cat:"";
+  var map={y:["Yes","t-y"],n:["No","t-n"],m:["Maybe","t-m"],gw:["Wrong guess","t-g"]};
+  $("log").innerHTML=R.log.slice().reverse().map(function(e,i){var m=map[e.v];return '<li><span class="tag '+m[1]+'">'+m[0]+'</span><span>#'+(R.log.length-i)+' '+esc(e.q||"")+'</span></li>';}).join("");
+}
+function finish(guesserWon){
+  var w=guesserWon?1-G.setter:G.setter;G.scores[w]++;saveG();
+  $("resTitle").textContent=guesserWon?"🎉 Got it!":"😈 Stumped!";
+  $("resSub").textContent=guesserWon?nm(w)+" guessed it with "+(21-R.left)+" question"+(21-R.left===1?"":"s")+" used.":"Out of questions — "+nm(w)+" (setter) wins!";
+  $("resSecret").textContent=R.secret;
+  $("rs1").textContent=G.scores[0];$("rs2").textContent=G.scores[1];$("rsn1").textContent=nm(0);$("rsn2").textContent=nm(1);
+  show("giresult");
+}
+function useQuestion(v){
+  R.log.push({v:v,q:$("qText").value.trim()});$("qText").value="";R.left--;renderPlay();
+  if(R.left<=0)finish(false);
+}
+function randomSecret(){var l=SECRETS[R.cat]||SECRETS.Anything;var s;do{s=l[Math.floor(Math.random()*l.length)];}while(l.length>1&&s===R.secret);return s;}
+
+/* ---------- Get to Know ---------- */
+var K={deck:null,order:[],pos:0,hist:[],idx:0,players:[],turn:0};
+var used=LS.get("q21_used",{})||{};
+function renderDecks(){
+  $("gkNames").value=(LS.get("q21_gkn",[])||[]).join(", ");
+  $("decks").innerHTML=Object.keys(DECKS).map(function(k){var d=DECKS[k];return '<button class="btn '+d.cls+'" data-act="deck" data-v="'+k+'">'+d.icon+" "+d.name+'<span>'+d.desc+" · "+d.q.length+' questions</span></button>';}).join("");
+}
+function nextFromDeck(){
+  var d=DECKS[K.deck],u=used[K.deck]||[];
+  if(u.length>=d.q.length)u=[];
+  var avail=[];for(var i=0;i<d.q.length;i++)if(u.indexOf(i)<0)avail.push(i);
+  var pick=avail[Math.floor(Math.random()*avail.length)];u.push(pick);used[K.deck]=u;LS.set("q21_used",used);return pick;
+}
+function startRound(){K.hist=[nextFromDeck()];K.idx=0;K.turn=0;renderGk();show("gkplay");}
+function renderGk(){
+  var d=DECKS[K.deck];$("gkDeckName").textContent=d.icon+" "+d.name;
+  $("gkCount").textContent=(K.idx+1)+"/21";$("gkProg").style.width=((K.idx+1)/21*100)+"%";
+  $("gkQ").textContent=d.q[K.hist[K.idx]];
+  $("gkTurn").textContent=K.players.length?"🎤 "+K.players[K.idx%K.players.length]+"'s turn":"";
+}
+function gkAdvance(skip){
+  if(skip){K.hist[K.idx]=nextFromDeck();renderGk();return;}
+  if(K.idx>=20){$("gkEndSub").textContent="You finished 21 questions from "+DECKS[K.deck].name+".";show("gkend");return;}
+  K.idx++;if(K.idx>=K.hist.length)K.hist.push(nextFromDeck());renderGk();
+}
+function pickDeck(k){
+  var names=$("gkNames").value.split(",").map(function(s){return s.trim();}).filter(Boolean).slice(0,12);
+  K.players=names;LS.set("q21_gkn",names);
+  var go=function(){K.deck=k;startRound();};
+  if(DECKS[k].adult){
+    if(LS.get("q21_adult",false)===true||K.adultOk){go();return;}
+    dialog("Are you 18+?","The Spicy deck is cheeky and flirty (not explicit). Everyone playing should be 18 or older.",[
+      {label:"Yes, we're all 18+",cls:"red",fn:function(){K.adultOk=true;LS.set("q21_adult",true);go();}},
+      {label:"No, take me back",cls:"ghost"}]);
+    return;
+  }
+  go();
+}
+
+/* ---------- actions ---------- */
+var A={
+ home:function(){show("home");},
+ menu:function(){
+  dialog("Menu","",[{label:"🏠 Home",cls:"pink",fn:function(){show("home");}},
+   {label:"🕵️ Guess It",fn:function(){A.giStart();}},{label:"💬 Get to Know You",fn:function(){A.gkStart();}},
+   {label:"Close",cls:"ghost"}]);
+ },
+ giStart:function(){R.secret="";$("secretIn").value="";renderSetup();show("gisetup");},
+ cat:function(b){R.cat=b.dataset.v;renderSetup();},
+ useTyped:function(){
+  var v=$("secretIn").value.trim();
+  if(!v){dialog("No secret yet","Type a secret thing, or tap 'Give me one'.",[{label:"OK",cls:"pink"}]);return;}
+  readNames();R.secret=v.slice(0,60);$("secretIn").value="";startPlay();
+ },
+ giveOne:function(){readNames();R.secret=randomSecret();R.revealed=false;
+  $("revSecret").textContent=R.secret;$("revSecret").classList.add("hid");$("revToggle").textContent="👁 Reveal";
+  $("revCat").textContent="Category: "+R.cat+" · only "+nm(G.setter)+" look!";show("gireveal");},
+ toggleReveal:function(){R.revealed=!R.revealed;$("revSecret").classList.toggle("hid",!R.revealed);$("revToggle").textContent=R.revealed?"🙈 Hide":"👁 Reveal";},
+ handOver:function(){$("revSecret").classList.add("hid");startPlay();},
+ ans:function(b){useQuestion(b.dataset.v);},
+ undo:function(){if(R.log.length){R.log.pop();R.left++;renderPlay();}},
+ peek:function(){dialog("Setter only 🤫",R.secret,[{label:"Hide",cls:"pink"}]);},
+ guess:function(){
+  dialog("Guess time!",nm(1-G.setter)+" makes a guess. "+nm(G.setter)+", was it right?",[
+   {label:"✅ Correct",cls:"green",fn:function(){finish(true);}},
+   {label:"❌ Wrong (costs a question)",cls:"red",fn:function(){$("qText").value=$("qText").value||"";useQuestion("gw");}},
+   {label:"Cancel",cls:"ghost"}]);
+ },
+ giNext:function(){G.setter=1-G.setter;saveG();A.giStart();},
+ resetScores:function(){dialog("Reset scores?","Both scores go back to 0.",[{label:"Reset",cls:"red",fn:function(){G.scores=[0,0];saveG();$("rs1").textContent=0;$("rs2").textContent=0;}},{label:"Cancel",cls:"ghost"}]);},
+ gkStart:function(){renderDecks();show("gkdeck");},
+ deck:function(b){pickDeck(b.dataset.v);},
+ gkNext:function(){gkAdvance(false);},
+ gkSkip:function(){gkAdvance(true);},
+ gkBack:function(){if(K.idx>0){K.idx--;renderGk();}},
+ gkAnother:function(){startRound();}
+};
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-act]");if(!b)return;
+  var f=A[b.dataset.act];if(f){e.preventDefault();f(b);}
+});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&ov.classList.contains("on"))closeOverlay();});
+window.__q21={show:show,R:R,G:G,K:K,DECKS:DECKS,SECRETS:SECRETS};
+})();
+</script></body></html>

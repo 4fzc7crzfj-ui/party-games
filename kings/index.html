@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0f1020">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Kings · Ring of Fire</title>
+<style>
+:root{
+  --bg:#0f1020; --bg2:#181a33; --panel:#1f2240; --line:#2e3260;
+  --text:#eef0ff; --muted:#9aa0c8; --accent:#ffb547; --accent2:#ff5a7a;
+  --red:#e0243c; --black:#14151f; --ok:#4fd1a5;
+  --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;overscroll-behavior:none}
+body{background:radial-gradient(120% 70% at 50% 0%,#2a1f4d 0%,var(--bg) 60%) fixed}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation}
+.app{max-width:520px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;
+  padding:calc(10px + var(--safe-t)) 14px calc(10px + var(--safe-b))}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:52px}
+.brand{font-weight:800;font-size:22px;letter-spacing:.3px}
+.brand span{color:var(--accent)}
+.iconbtn{min-width:48px;height:48px;border-radius:14px;background:var(--panel);border:1px solid var(--line);
+  display:inline-flex;align-items:center;justify-content:center;font-size:20px;padding:0 12px}
+.iconbtn:active{transform:scale(.96)}
+.hbtns{display:flex;gap:8px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:10px 12px}
+.stat .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.stat .val{font-size:26px;font-weight:800;margin-top:2px}
+.crowns{display:flex;gap:4px;margin-top:4px;font-size:20px}
+.crowns i{font-style:normal;opacity:.22;filter:grayscale(1);transition:all .3s}
+.crowns i.on{opacity:1;filter:none;transform:scale(1.1)}
+.turn{background:linear-gradient(90deg,#3a2a6b,#2a2f6b);border:1px solid var(--line);border-radius:16px;
+  padding:10px 14px;text-align:center;font-size:16px;margin-bottom:10px}
+.turn b{color:var(--accent);font-size:20px}
+.turn.hidden{display:none}
+.stage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:340px}
+.drawzone{width:100%;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border-radius:24px;padding:10px 0;user-select:none;-webkit-user-select:none}
+.scene{width:min(56vw,230px);aspect-ratio:5/7;perspective:1200px}
+.card{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.card.flipped{transform:rotateY(180deg)}
+.card.deal{animation:deal .35s ease-out}
+@keyframes deal{from{transform:translateY(-30px) scale(.92);opacity:.3}to{transform:none;opacity:1}}
+.face{position:absolute;inset:0;border-radius:18px;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  box-shadow:0 18px 40px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.06) inset}
+.back{background:
+   repeating-linear-gradient(45deg,rgba(255,255,255,.06) 0 8px,transparent 8px 16px),
+   linear-gradient(135deg,#7a1f4a,#3b1e7a);
+  border:8px solid #f4f1ea;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.back .ring{width:58%;aspect-ratio:1;border-radius:50%;border:4px dashed rgba(255,200,120,.8);
+  display:flex;align-items:center;justify-content:center;font-size:44px}
+.back .hint{margin-top:12px;font-weight:800;letter-spacing:2px;color:#ffe2b0;font-size:14px;text-transform:uppercase}
+.front{transform:rotateY(180deg);background:#fbfaf6;color:var(--black);padding:12px;display:flex;flex-direction:column}
+.front.red{color:var(--red)}
+.corner{position:absolute;line-height:1;text-align:center;font-weight:800}
+.corner .r{font-size:26px}.corner .s{font-size:22px}
+.corner.tl{top:10px;left:12px}.corner.br{bottom:10px;right:12px;transform:rotate(180deg)}
+.pip{flex:1;display:flex;align-items:center;justify-content:center;font-size:92px;line-height:1}
+.rulebox{position:relative;margin-top:16px;width:100%;text-align:center;min-height:96px;padding:0 8px}
+.rulebox h2{margin:0;font-size:28px;font-weight:800;color:var(--accent)}
+.rulebox p{margin:6px 0 0;font-size:17px;color:var(--text);opacity:.9;line-height:1.35}
+.rulebox .tap{color:var(--muted);font-size:16px}
+.drawbtn{width:100%;min-height:72px;margin-top:12px;border-radius:20px;font-size:24px;font-weight:800;letter-spacing:1px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#1b0f1f;
+  box-shadow:0 10px 30px rgba(255,90,122,.35)}
+.drawbtn:active{transform:scale(.98)}
+.drawbtn:disabled{opacity:.4}
+.history{margin-top:12px}
+.history .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.hrow{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;min-height:58px}
+.mini{flex:0 0 auto;width:42px;height:58px;border-radius:8px;background:#fbfaf6;color:var(--black);font-weight:800;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:15px;line-height:1.05}
+.mini.red{color:var(--red)}
+.mini:first-child{outline:2px solid var(--accent)}
+.empty{color:var(--muted);font-size:14px;align-self:center}
+footer{text-align:center;color:var(--muted);font-size:13px;padding:14px 0 4px;line-height:1.4}
+/* sheets */
+.sheet{position:fixed;inset:0;background:rgba(8,8,18,.78);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  display:none;z-index:20;padding:calc(12px + var(--safe-t)) 12px calc(12px + var(--safe-b))}
+.sheet.open{display:flex;justify-content:center;align-items:flex-end}
+.panel{width:100%;max-width:520px;max-height:100%;overflow:auto;background:var(--bg2);border:1px solid var(--line);
+  border-radius:22px;padding:16px;animation:up .25s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.panel h3{margin:0 0 4px;font-size:22px}
+.panel .sub{color:var(--muted);font-size:14px;margin:0 0 12px}
+.phead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.row{display:flex;gap:8px;margin-bottom:10px}
+input,textarea{font:inherit;font-size:17px;color:var(--text);background:var(--panel);border:1px solid var(--line);
+  border-radius:12px;padding:12px;width:100%;outline:none}
+input:focus,textarea:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:52px;font-size:15px}
+.btn{min-height:50px;border-radius:14px;padding:0 18px;font-weight:700;background:var(--panel);border:1px solid var(--line);white-space:nowrap}
+.btn.primary{background:var(--accent);color:#1b0f1f;border-color:transparent}
+.btn.danger{color:#ff8a9e}
+.btn.full{width:100%}
+.plist{list-style:none;padding:0;margin:0 0 12px}
+.plist li{display:flex;align-items:center;justify-content:space-between;background:var(--panel);border:1px solid var(--line);
+  border-radius:12px;padding:6px 6px 6px 14px;margin-bottom:8px;font-size:17px}
+.plist .x{width:44px;height:44px;border-radius:10px;font-size:20px;color:#ff8a9e}
+.rule{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px;margin-bottom:10px}
+.rule .rk{display:inline-flex;width:36px;height:36px;border-radius:8px;background:#fbfaf6;color:var(--black);
+  font-weight:800;align-items:center;justify-content:center;margin-right:8px;flex:0 0 auto}
+.rule .top{display:flex;align-items:center;margin-bottom:8px}
+.rule input{padding:9px 10px}
+.actions{display:flex;gap:8px;position:sticky;bottom:-16px;background:var(--bg2);padding:10px 0 2px}
+.actions .btn{flex:1}
+/* game over */
+.over{text-align:center}
+.over .big{font-size:84px;line-height:1;margin:6px 0}
+.over h3{font-size:28px;color:var(--accent)}
+.toast{position:fixed;left:50%;bottom:calc(24px + var(--safe-b));transform:translateX(-50%);background:var(--ok);color:#06231a;
+  padding:10px 18px;border-radius:999px;font-weight:700;opacity:0;transition:opacity .25s;pointer-events:none;z-index:30}
+.toast.show{opacity:1}
+@media (max-height:700px){.scene{width:min(56vw,200px)}.pip{font-size:70px}.stage{min-height:300px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">👑 <span>Kings</span></div>
+    <div class="hbtns">
+      <button class="iconbtn" id="btnPlayers" aria-label="Players">👥</button>
+      <button class="iconbtn" id="btnRules" aria-label="Rules">📜</button>
+      <button class="iconbtn" id="btnNew" aria-label="New game">↻</button>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="lbl">Cards left</div><div class="val" id="left">52</div></div>
+    <div class="stat"><div class="lbl">Kings drawn <span id="kcount">0</span>/4</div>
+      <div class="crowns" id="crowns"><i>👑</i><i>👑</i><i>👑</i><i>👑</i></div></div>
+  </div>
+
+  <div class="turn hidden" id="turn">Up next: <b id="turnName"></b></div>
+
+  <div class="stage">
+    <div class="drawzone" id="drawzone" role="button" aria-label="Draw a card" tabindex="0">
+      <div class="scene"><div class="card" id="card">
+        <div class="face back"><div class="ring">🔥</div><div class="hint">Tap to draw</div></div>
+        <div class="face front" id="front">
+          <div class="corner tl"><div class="r" id="r1">A</div><div class="s" id="s1">♠</div></div>
+          <div class="pip" id="pip">♠</div>
+          <div class="corner br"><div class="r" id="r2">A</div><div class="s" id="s2">♠</div></div>
+        </div>
+      </div></div>
+      <div class="rulebox" id="rulebox"><p class="tap">Tap the deck or press Draw to start the Ring of Fire.</p></div>
+    </div>
+    <button class="drawbtn" id="drawBtn">DRAW</button>
+  </div>
+
+  <div class="history">
+    <div class="lbl">Recent cards</div>
+    <div class="hrow" id="history"><span class="empty">No cards drawn yet</span></div>
+  </div>
+
+  <footer>🍻 Play nice & drink responsibly. Know your limits, hydrate, never drink and drive. Water counts as a drink too.</footer>
+</div>
+
+<!-- Players sheet -->
+<div class="sheet" id="sheetPlayers"><div class="panel">
+  <div class="phead"><h3>Players</h3><button class="iconbtn" data-close aria-label="Close">✕</button></div>
+  <p class="sub">Optional. Add names to show whose turn it is.</p>
+  <form class="row" id="addForm" autocomplete="off">
+    <input id="pname" maxlength="24" placeholder="Player name" enterkeyhint="done">
+    <button class="btn primary" type="submit">Add</button>
+  </form>
+  <ul class="plist" id="plist"></ul>
+  <button class="btn full" data-close>Done</button>
+</div></div>
+
+<!-- Rules sheet -->
+<div class="sheet" id="sheetRules"><div class="panel">
+  <div class="phead"><h3>Rules</h3><button class="iconbtn" data-close aria-label="Close">✕</button></div>
+  <p class="sub">Edit any rule — changes are saved on this device.</p>
+  <div id="rulesList"></div>
+  <div class="actions">
+    <button class="btn danger" id="resetRules">Reset defaults</button>
+    <button class="btn primary" id="saveRules">Save</button>
+  </div>
+</div></div>
+
+<!-- Game over / confirm sheet -->
+<div class="sheet" id="sheetOver"><div class="panel over">
+  <div class="big" id="overIcon">👑🍺</div>
+  <h3 id="overTitle">Fourth King!</h3>
+  <p class="sub" id="overText"></p>
+  <button class="btn primary full" id="overNew">New game</button>
+</div></div>
+
+<div class="sheet" id="sheetConfirm"><div class="panel">
+  <h3>Start a new game?</h3>
+  <p class="sub">The deck will be reshuffled. Players are kept.</p>
+  <div class="row"><button class="btn full" data-close>Cancel</button><button class="btn primary full" id="confirmNew">Reshuffle</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+  var RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+  var SUITS=[{s:'♠',red:false},{s:'♥',red:true},{s:'♦',red:true},{s:'♣',red:false}];
+  var DEFAULT_RULES={
+    'A':{t:'Waterfall',d:'Everyone starts drinking. You can only stop when the person before you stops.'},
+    '2':{t:'You',d:'Pick someone to drink.'},
+    '3':{t:'Me',d:'You drink.'},
+    '4':{t:'Floor',d:'Everyone touches the floor — last one to touch it drinks.'},
+    '5':{t:'Guys',d:'All the guys drink.'},
+    '6':{t:'Chicks',d:'All the girls drink.'},
+    '7':{t:'Heaven',d:'Everyone points to the sky — last to point up drinks.'},
+    '8':{t:'Mate',d:'Pick a drinking buddy. Whenever you drink, they drink too.'},
+    '9':{t:'Rhyme',d:'Say a word; go around rhyming with it. First to fail or repeat drinks.'},
+    '10':{t:'Categories',d:'Pick a category; go around naming things in it. First to fail drinks.'},
+    'J':{t:'Make a Rule',d:'Invent a rule everyone must follow. Break it, drink.'},
+    'Q':{t:'Question Master',d:'Anyone who answers your questions drinks — until the next Queen.'},
+    'K':{t:"King's Cup",d:"Pour some of your drink into the middle cup. Whoever draws the 4th King drinks it all!"}
+  };
+  var LS_RULES='kings.rules.v1', LS_PLAYERS='kings.players.v1';
+
+  function store(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+  function load(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
+
+  var rules=mergeRules(load(LS_RULES));
+  var players=Array.isArray(load(LS_PLAYERS))?load(LS_PLAYERS):[];
+  var deck=[],drawn=[],kings=0,turn=0,busy=false,over=false;
+
+  function mergeRules(saved){
+    var r={};RANKS.forEach(function(k){
+      var d=DEFAULT_RULES[k],s=saved&&saved[k];
+      r[k]={t:(s&&typeof s.t==='string'&&s.t.trim())?s.t:d.t,d:(s&&typeof s.d==='string')?s.d:d.d};
+    });return r;
+  }
+  var $=function(id){return document.getElementById(id);};
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+  function shuffle(a){for(var i=a.length-1;i>0;i--){var j=rnd(i+1),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+  function rnd(n){
+    if(window.crypto&&crypto.getRandomValues){var b=new Uint32Array(1),lim=Math.floor(4294967296/n)*n;
+      do{crypto.getRandomValues(b);}while(b[0]>=lim);return b[0]%n;}
+    return Math.floor(Math.random()*n);
+  }
+  function newDeck(){var d=[];SUITS.forEach(function(su){RANKS.forEach(function(r){d.push({r:r,s:su.s,red:su.red});});});return shuffle(d);}
+
+  function newGame(){
+    deck=newDeck();drawn=[];kings=0;turn=0;over=false;busy=false;
+    $('card').classList.remove('flipped');
+    $('rulebox').innerHTML='<p class="tap">Fresh deck shuffled. Tap to draw!</p>';
+    $('drawBtn').disabled=false;$('drawBtn').textContent='DRAW';
+    render();
+  }
+
+  function render(){
+    $('left').textContent=deck.length;
+    $('kcount').textContent=kings;
+    var cr=$('crowns').children;for(var i=0;i<cr.length;i++)cr[i].classList.toggle('on',i<kings);
+    var t=$('turn');
+    if(players.length){t.classList.remove('hidden');$('turnName').textContent=players[turn%players.length];}
+    else t.classList.add('hidden');
+    var h=$('history');
+    if(!drawn.length){h.innerHTML='<span class="empty">No cards drawn yet</span>';}
+    else h.innerHTML=drawn.slice(-8).reverse().map(function(c){
+      return '<div class="mini'+(c.red?' red':'')+'" title="'+esc(c.who||'')+'"><span>'+c.r+'</span><span>'+c.s+'</span></div>';}).join('');
+  }
+
+  function showFace(c){
+    var f=$('front');f.classList.toggle('red',c.red);
+    $('r1').textContent=$('r2').textContent=c.r;
+    $('s1').textContent=$('s2').textContent=c.s;
+    $('pip').textContent=c.r==='K'?'👑':c.r==='Q'?'♛':c.r==='J'?'♞':c.s;
+    if(c.r==='K'||c.r==='Q'||c.r==='J')$('pip').style.fontSize='';
+  }
+
+  function draw(){
+    if(busy||over)return;
+    if(!deck.length){finish(false);return;}
+    busy=true;
+    var c=deck.pop(), card=$('card');
+    c.who=players.length?players[turn%players.length]:'';
+    var flipIn=function(){
+      showFace(c);
+      card.classList.remove('deal');void card.offsetWidth;
+      card.classList.add('flipped');
+      var rule=rules[c.r]||DEFAULT_RULES[c.r];
+      var extra='';
+      if(c.r==='K'){kings++;extra=kings<4?' <b>'+(4-kings)+' King'+(4-kings===1?'':'s')+' left.</b>':'';}
+      var who=c.who?'<p style="color:var(--muted);font-size:14px;margin-top:4px">'+esc(c.who)+' drew '+c.r+c.s+'</p>':'';
+      $('rulebox').innerHTML='<h2>'+esc(rule.t)+'</h2><p>'+esc(rule.d)+extra+'</p>'+who;
+      drawn.push(c);
+      if(players.length)turn=(turn+1)%players.length;
+      if(navigator.vibrate)try{navigator.vibrate(c.r==='K'?[40,40,80]:20);}catch(e){}
+      render();
+      setTimeout(function(){
+        busy=false;
+        if(c.r==='K'&&kings>=4)finish(true,c.who);
+        else if(!deck.length)finish(false);
+      },c.r==='K'&&kings>=4?900:450);
+    };
+    if(card.classList.contains('flipped')){
+      card.classList.remove('flipped');
+      setTimeout(flipIn,320);
+    } else flipIn();
+  }
+
+  function finish(fourthKing,who){
+    over=true;$('drawBtn').disabled=true;$('drawBtn').textContent='GAME OVER';
+    if(fourthKing){
+      $('overIcon').textContent='👑🍺';$('overTitle').textContent='The Fourth King!';
+      $('overText').textContent=(who?who:'Whoever drew it')+" must drink the King's Cup. Game over — "+drawn.length+' cards played.';
+    } else {
+      $('overIcon').textContent='🃏';$('overTitle').textContent='Deck finished';
+      $('overText').textContent='All 52 cards drawn. Shuffle up for another round?';
+    }
+    open('sheetOver');
+  }
+
+  // sheets
+  function open(id){$(id).classList.add('open');}
+  function closeAll(){document.querySelectorAll('.sheet.open').forEach(function(s){s.classList.remove('open');});}
+  document.querySelectorAll('.sheet').forEach(function(s){
+    s.addEventListener('click',function(e){
+      if(e.target===s&&s.id!=='sheetOver')s.classList.remove('open');
+      if(e.target.closest('[data-close]'))s.classList.remove('open');
+    });
+  });
+  function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(function(){t.classList.remove('show');},1400);}
+
+  // players
+  function renderPlayers(){
+    var ul=$('plist');
+    if(!players.length){ul.innerHTML='<li style="color:var(--muted);justify-content:center;padding:14px">No players — game works without names.</li>';return;}
+    ul.innerHTML=players.map(function(p,i){
+      return '<li><span>'+(i===turn%players.length?'👉 ':'')+esc(p)+'</span><button class="x" data-del="'+i+'" aria-label="Remove '+esc(p)+'">✕</button></li>';}).join('');
+  }
+  $('addForm').addEventListener('submit',function(e){
+    e.preventDefault();var v=$('pname').value.trim();if(!v)return;
+    players.push(v);store(LS_PLAYERS,players);$('pname').value='';renderPlayers();render();$('pname').focus();
+  });
+  $('plist').addEventListener('click',function(e){
+    var b=e.target.closest('[data-del]');if(!b)return;var i=+b.getAttribute('data-del');
+    var cur=turn%Math.max(players.length,1);
+    players.splice(i,1);
+    if(players.length){if(i<cur)cur--;turn=cur%players.length;}else turn=0;
+    store(LS_PLAYERS,players);renderPlayers();render();
+  });
+
+  // rules
+  function renderRules(){
+    $('rulesList').innerHTML=RANKS.map(function(k){var r=rules[k];
+      return '<div class="rule"><div class="top"><span class="rk">'+k+'</span><input data-k="'+k+'" data-f="t" maxlength="40" value="'+esc(r.t)+'" aria-label="Rule title for '+k+'"></div>'+
+        '<textarea data-k="'+k+'" data-f="d" maxlength="240" aria-label="Rule description for '+k+'">'+esc(r.d)+'</textarea></div>';}).join('');
+  }
+  $('saveRules').addEventListener('click',function(){
+    var n={};RANKS.forEach(function(k){n[k]={t:rules[k].t,d:rules[k].d};});
+    document.querySelectorAll('#rulesList [data-k]').forEach(function(el){n[el.getAttribute('data-k')][el.getAttribute('data-f')]=el.value;});
+    rules=mergeRules(n);store(LS_RULES,rules);renderRules();toast('Rules saved');$('sheetRules').classList.remove('open');
+  });
+  $('resetRules').addEventListener('click',function(){
+    rules=mergeRules(null);try{localStorage.removeItem(LS_RULES);}catch(e){}renderRules();toast('Defaults restored');
+  });
+
+  // wiring
+  $('drawBtn').addEventListener('click',draw);
+  $('drawzone').addEventListener('click',draw);
+  $('drawzone').addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();draw();}});
+  $('btnPlayers').addEventListener('click',function(){renderPlayers();open('sheetPlayers');});
+  $('btnRules').addEventListener('click',function(){renderRules();open('sheetRules');});
+  $('btnNew').addEventListener('click',function(){if(!drawn.length||over){closeAll();newGame();}else open('sheetConfirm');});
+  $('confirmNew').addEventListener('click',function(){closeAll();newGame();});
+  $('overNew').addEventListener('click',function(){closeAll();newGame();});
+
+  newGame();
+  window.__kings={state:function(){return{left:deck.length,kings:kings,drawn:drawn.length,over:over,turn:turn,players:players.slice()};},draw:draw,newGame:newGame,rules:function(){return rules;}};
+})();
+</script>
+</body>
+</html>

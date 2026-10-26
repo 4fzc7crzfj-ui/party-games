@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en-AU"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Coastopoly</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:#0b2a40;color:#f4f1e8;font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+button{font:inherit;border:0;border-radius:12px;padding:12px 14px;min-height:46px;background:#1fa3a3;color:#fff;font-weight:700;touch-action:manipulation;cursor:pointer}
+button:disabled{opacity:.4}
+button.sec{background:#2d4f6a}button.warn{background:#d0533a}button.gold{background:#f2b632;color:#3a2600}
+button.sm{min-height:36px;padding:6px 10px;border-radius:9px;font-size:14px}
+input,select{font-size:16px;padding:10px;border-radius:10px;border:1px solid #577;background:#fff;color:#111;min-height:44px}
+.screen{display:none;min-height:100vh;padding:max(10px,env(safe-area-inset-top)) 10px 30px}
+.screen.on{display:block}
+h1{font-size:34px;margin:10px 0 2px;text-align:center;letter-spacing:1px;color:#f2d13a;text-shadow:2px 2px 0 #d0533a}
+.sub{text-align:center;opacity:.8;margin-bottom:14px}
+.card{background:#123a57;border-radius:16px;padding:14px;margin:10px 0}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row>.grow{flex:1}
+.step{display:flex;align-items:center;gap:10px}.step b{min-width:26px;text-align:center;font-size:22px}
+.step button{width:46px}
+.tog{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #1d4d6d}
+.tog input{width:26px;height:26px;min-height:0}
+.full{width:100%}
+/* game */
+#topbar{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+#topbar .t{flex:1;font-weight:800;color:#f2d13a;font-size:20px}
+#bwrap{overflow:auto;-webkit-overflow-scrolling:touch;border-radius:10px;background:#0e5d6e;max-height:62vh;touch-action:pan-x pan-y pinch-zoom}
+#board{--bs:370px;width:var(--bs);height:var(--bs);display:grid;grid-template-columns:1.55fr repeat(9,1fr) 1.55fr;grid-template-rows:1.55fr repeat(9,1fr) 1.55fr;gap:1px;background:#08303b;padding:1px;margin:0 auto}
+.sq{background:#f6ecd2;color:#222;position:relative;overflow:hidden;font-size:calc(var(--bs)/68);line-height:1.05;text-align:center;display:flex;flex-direction:column;align-items:center}
+.sq .bar{width:100%;height:20%;flex:none}
+.sq .nm{padding:1px;font-weight:700;word-break:break-word}
+.sq .pr{opacity:.7}
+.sq .hs{font-size:calc(var(--bs)/50);position:absolute;top:0;left:0;right:0;line-height:1}
+.sq .ow{position:absolute;bottom:0;left:0;right:0;height:12%}
+.sq .ow.m{background-image:repeating-linear-gradient(45deg,#0000 0 3px,#0008 3px 5px)!important}
+.sq .tk{position:absolute;bottom:12%;left:0;right:0;font-size:calc(var(--bs)/27);line-height:1;display:flex;flex-wrap:wrap;justify-content:center}
+.sq .tk span.cur{filter:drop-shadow(0 0 3px #f00)}
+.sq.corner{font-size:calc(var(--bs)/52);justify-content:center}
+.sq .ic{font-size:calc(var(--bs)/26)}
+.sq.hl{outline:3px solid #f2b632;outline-offset:-3px;z-index:2}
+#center{grid-area:2/2/11/11;background:radial-gradient(#1aa0a8,#0d6170);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:4%;text-align:center}
+#center .logo{font-size:calc(var(--bs)/11);font-weight:900;color:#f2d13a;text-shadow:2px 2px 0 #d0533a;transform:rotate(-8deg)}
+#dice{font-size:calc(var(--bs)/8);line-height:1;margin:2% 0}
+#ccard{font-size:calc(var(--bs)/34);max-width:90%;min-height:2.4em}
+#pot{font-size:calc(var(--bs)/30)}
+#zoom{display:flex;gap:6px;justify-content:flex-end;margin:6px 0}
+#zoom button{min-height:34px;padding:4px 12px}
+#panel{background:#123a57;border-radius:14px;padding:10px;margin-top:4px}
+#who{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:800}
+#who .tok{font-size:30px}
+#who .m{margin-left:auto;color:#7fe08a}
+#status{opacity:.9;margin:6px 0;min-height:22px}
+#acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#acts .big{grid-column:1/-1;font-size:22px;min-height:58px}
+#plist .pl{display:flex;gap:8px;align-items:center;padding:8px;border-radius:10px;margin:4px 0;background:#0f324b}
+#plist .pl.cur{outline:2px solid #f2b632}#plist .pl.out{opacity:.4;text-decoration:line-through}
+#plist .dot{width:12px;height:12px;border-radius:50%}
+#plist .props{display:flex;flex-wrap:wrap;gap:2px;margin-top:3px}
+#plist .props i{display:inline-block;width:10px;height:10px;border-radius:2px}
+#log{max-height:200px;overflow:auto;font-size:13px;background:#0f324b;border-radius:10px;padding:8px}
+#log div{padding:2px 0;border-bottom:1px solid #173f5c}
+#ovl{position:fixed;inset:0;background:#000a;display:none;align-items:flex-end;justify-content:center;z-index:50}
+#ovl.on{display:flex}
+#dlg{background:#123a57;width:100%;max-width:480px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px 14px max(16px,env(safe-area-inset-bottom))}
+#dlg h2{margin:0 0 10px}
+.pc{border-radius:12px;background:#f6ecd2;color:#222;overflow:hidden;margin-bottom:10px}
+.pc .hd{padding:12px;text-align:center;font-weight:800;font-size:20px}
+.pc table{width:100%;border-collapse:collapse;font-size:15px}.pc td{padding:4px 12px}.pc td:last-child{text-align:right}
+.mrow{display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid #1d4d6d}
+.mrow .sw{width:14px;height:34px;border-radius:4px;flex:none}
+.mrow .nm{flex:1;font-size:14px}
+.tcol{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tcol label{display:flex;gap:6px;align-items:center;font-size:13px;padding:5px 0}
+.tcol input[type=checkbox]{width:22px;height:22px;min-height:0;flex:none}
+#toast{position:fixed;left:50%;top:14px;transform:translateX(-50%);background:#f2b632;color:#3a2600;font-weight:800;padding:10px 16px;border-radius:12px;z-index:60;display:none;max-width:92vw;text-align:center}
+.btns{display:flex;gap:8px;margin-top:12px}.btns button{flex:1}
+</style></head><body>
+<section id="scr-setup" class="screen">
+ <h1>🌊 COASTOPOLY 🦘</h1><div class="sub">The Central Coast property game. Buy the beach, mate.</div>
+ <div id="resumeBox" class="card" style="display:none"><div class="row"><div class="grow">Game in progress found.</div><button id="btnResume" class="gold">▶ Resume</button></div></div>
+ <div class="card">
+  <div class="row" style="justify-content:space-between"><b>Humans</b><div class="step"><button class="sec" data-st="h:-1">−</button><b id="nH">2</b><button class="sec" data-st="h:1">+</button></div></div>
+  <div class="row" style="justify-content:space-between;margin-top:8px"><b>Bots 🤖</b><div class="step"><button class="sec" data-st="b:-1">−</button><b id="nB">1</b><button class="sec" data-st="b:1">+</button></div></div>
+  <div style="font-size:13px;opacity:.7;margin-top:6px">2–6 players total. Pass the phone between humans.</div>
+  <div id="names" style="margin-top:8px"></div>
+ </div>
+ <div class="card">
+  <div class="tog"><span>💰 Free Parking jackpot<br><small style="opacity:.7">Taxes &amp; fines go to the pot</small></span><input type="checkbox" id="optFP"></div>
+  <div class="tog"><span>🍺 Drinking mode<br><small style="opacity:.7">Pay rent = sip, Jail = skol… drink responsibly</small></span><input type="checkbox" id="optDrink"></div>
+  <div class="tog" style="border:0"><span>⏩ Bot speed</span><select id="optSpeed"><option value="900">Slow</option><option value="450" selected>Normal</option><option value="150">Fast</option><option value="0">Instant</option></select></div>
+ </div>
+ <button id="btnStart" class="gold full" style="font-size:22px;min-height:58px">🎲 Start new game</button>
+ <div class="card" style="font-size:13px;opacity:.85">Rules: $1500 start, $200 for passing GO. Doubles roll again; three doubles = jail. Rent doubles on a full colour set; build evenly. Mortgage for half price, unmortgage at +10%. Jail: pay $50, use a card, or roll doubles (3 tries). Declined properties stay unowned (no auctions). Last player standing wins.</div>
+</section>
+
+<section id="scr-game" class="screen">
+ <div id="topbar"><div class="t">🌊 Coastopoly</div><button class="sec sm" id="btnLog">📜</button><button class="sec sm" id="btnMenu">☰ Menu</button></div>
+ <div id="bwrap"><div id="board"></div></div>
+ <div id="zoom"><button class="sec sm" data-z="1">1×</button><button class="sec sm" data-z="1.6">1.6×</button><button class="sec sm" data-z="2.3">2.3×</button></div>
+ <div id="panel"><div id="who"></div><div id="status"></div><div id="acts"></div></div>
+ <div class="card"><b>Players</b><div id="plist"></div></div>
+ <div class="card"><b>Log</b><div id="log"></div></div>
+</section>
+
+<section id="scr-over" class="screen">
+ <h1>🏆 Game Over</h1><div id="overBody" class="card"></div>
+ <button id="btnAgain" class="gold full">New game</button>
+</section>
+<div id="ovl"><div id="dlg"></div></div>
+<div id="toast"></div>
+<script>
+'use strict';
+/* ================= DATA ================= */
+const G={brown:['#8b5a2b',50],lblue:['#8fd3f0',50],pink:['#d94f9c',100],orange:['#f39a2b',100],red:['#e23b3b',150],yellow:['#f2d13a',150],green:['#2a9d4a',200],dblue:['#1f4fa8',200]};
+function P(n,g,p,r){return{n,t:'prop',g,p,r,h:G[g][1]}}
+const SQ=[
+{n:'GO',t:'go'},P('Tuggerah','brown',60,[2,10,30,90,160,250]),{n:'Esky',t:'chest'},P('Wyong','brown',60,[4,20,60,180,320,450]),{n:'Council Rates',t:'tax',amt:200},
+{n:'Gosford Station',t:'stn',p:200},P('Woy Woy','lblue',100,[6,30,90,270,400,550]),{n:'Fair Dinkum',t:'chance'},P('Umina Beach','lblue',100,[6,30,90,270,400,550]),P('Ettalong','lblue',120,[8,40,100,300,450,600]),
+{n:'Jail',t:'jail'},P('Gosford','pink',140,[10,50,150,450,625,750]),{n:'Ausgrid Power',t:'util',p:150},P('Kincumber','pink',140,[10,50,150,450,625,750]),P('Erina Fair','pink',160,[12,60,180,500,700,900]),
+{n:'Central Station',t:'stn',p:200},P('Long Jetty','orange',180,[14,70,200,550,750,950]),{n:'Esky',t:'chest'},P('Toowoon Bay','orange',180,[14,70,200,550,750,950]),P('The Entrance','orange',200,[16,80,220,600,800,1000]),
+{n:'Free Parking',t:'fp'},P('Copacabana','red',220,[18,90,250,700,875,1050]),{n:'Fair Dinkum',t:'chance'},P('MacMasters Beach','red',220,[18,90,250,700,875,1050]),P('Avoca Beach','red',240,[20,100,300,750,925,1100]),
+{n:'Newcastle Interchange',t:'stn',p:200},P('Forresters Beach','yellow',260,[22,110,330,800,975,1150]),P('Terrigal Esplanade','yellow',260,[22,110,330,800,975,1150]),{n:'Central Coast Water',t:'util',p:150},P('Terrigal Haven','yellow',280,[24,120,360,850,1025,1200]),
+{n:'Go To Jail',t:'gtj'},P('Manly','green',300,[26,130,390,900,1100,1275]),P('Palm Beach','green',300,[26,130,390,900,1100,1275]),{n:'Esky',t:'chest'},P('Bondi Beach','green',320,[28,150,450,1000,1200,1400]),
+{n:'Redfern Station',t:'stn',p:200},{n:'Fair Dinkum',t:'chance'},P('Byron Bay','dblue',350,[35,175,500,1100,1300,1500]),{n:'Servo Fuel Bill',t:'tax',amt:100},P('Wamberal Beach','dblue',400,[50,200,600,1400,1700,2000])];
+const GI={};SQ.forEach((s,i)=>{if(s.g)(GI[s.g]=GI[s.g]||[]).push(i)});
+const CARDS={chance:[
+{x:'Advance to GO. Collect $200.',mv:0},{x:'Your mate lends you his ute — cruise to Wamberal Beach.',mv:39},
+{x:'Schoolies flashback! Head to Terrigal Haven.',mv:29},{x:'Catch the next train to the nearest station. Pay double rent if owned.',near:'stn'},
+{x:'Running late for the footy — nearest station, double rent if owned.',near:'stn'},{x:'Air-con on full all summer. Go to nearest utility; if owned pay 10× a fresh roll.',near:'util'},
+{x:'Caught doing burnouts at The Entrance. Go straight to Jail.',jail:1},{x:'Your cousin is a sergeant. Get Out of Jail Free.',goo:1},
+{x:'Forgot your thongs. Go back 3 squares.',back:3},{x:'Won the meat tray at the pub raffle! Collect $150.',m:150},
+{x:'Speeding fine on the M1. Pay $15.',m:-15},{x:'Elected Surf Club president. Shout everyone: pay each player $50.',each:-50},
+{x:'Termite inspection: pay $25 per house, $100 per hotel.',rep:[25,100]},{x:'Day trip to the city: go to Central Station.',mv:15},
+{x:'Sold your old surfboard on Marketplace. Collect $50.',m:50},{x:'Brekkie at Gosford. Advance to Gosford.',mv:11}],
+chest:[{x:'Advance to GO. Collect $200.',mv:0},{x:'Tax return came through! Collect $200.',m:200},
+{x:'Cracked a tooth on a frozen icy pole. Dentist: pay $50.',m:-50},{x:'Sold the Kombi on Gumtree. Collect $50.',m:50},
+{x:'Your nan knows the magistrate. Get Out of Jail Free.',goo:1},{x:'Fed the seagulls chips at The Entrance. Go to Jail.',jail:1},
+{x:"It's your birthday! Collect $10 from every player.",each:10},{x:'Inheritance from Great Aunt Shazza. Collect $100.',m:100},
+{x:'Bluebottle sting — hospital fee $100.',m:-100},{x:'School fees. Pay $50.',m:-50},
+{x:'Second prize in the thong-throwing comp. Collect $10.',m:10},{x:'Life insurance matures. Collect $100.',m:100},
+{x:'Storm damage: pay $40 per house, $115 per hotel.',rep:[40,115]},{x:'Bunnings sausage sizzle profits. Collect $25.',m:25},
+{x:'Found $20 in your boardies. Collect $20.',m:20},{x:'Holiday fund matures. Collect $100.',m:100}]};
+const TOKENS=['🦘','🏄','🐨','🛵','🥩','🍺'];
+const PCOL=['#e23b3b','#1f7ae0','#2bb34a','#f39a2b','#a64ad9','#e0c21f'];
+const BOTN=['Shazza','Bazza','Davo','Kylie','Macca','Robbo','Tezza','Jonno','Gazza','Shaz'];
+
+/* ================= ENGINE ================= */
+let S=null,forced=null,SIM=false;const hooks={};
+const rnd=()=>Math.random();
+const d6=()=>1+Math.floor(rnd()*6);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const range=n=>Array.from({length:n},(_,i)=>i);
+function log(m){if(SIM)return;S.log.unshift(m);if(S.log.length>200)S.log.length=200}
+function drink(m){if(S.set.drink){log('🍺 '+m);if(!SIM&&hooks.toast)hooks.toast('🍺 '+m)}}
+const cp=()=>S.players[S.cur];
+const isBuy=i=>['prop','stn','util'].includes(SQ[i].t);
+const ownedBy=id=>Object.keys(S.own).map(Number).filter(i=>S.own[i].o===id).sort((a,b)=>a-b);
+const hasSet=(id,g)=>GI[g].every(i=>S.own[i]&&S.own[i].o===id);
+const countT=(id,t)=>SQ.reduce((c,s,i)=>c+(s.t===t&&S.own[i]&&S.own[i].o===id?1:0),0);
+const grpHouses=g=>GI[g].some(i=>S.own[i]&&S.own[i].h>0);
+const alive=()=>S.players.filter(p=>!p.out);
+const sum=()=>S.dice[0]+S.dice[1];
+function newGame(list,set){
+ S={players:list.map((p,i)=>({id:i,name:p.name,tok:p.tok,bot:!!p.bot,col:PCOL[i],money:1500,pos:0,jail:false,jt:0,cards:0,out:false,dbl:0})),
+  own:{},cur:0,phase:'roll',dice:[1,1],log:[],set:Object.assign({fp:false,drink:false,speed:450},set),pot:0,turns:0,cap:3000,winner:null,debt:null,again:false,
+  decks:{chance:shuffle(range(16)),chest:shuffle(range(16))},lastCard:'',passShown:-1,trades:{}};
+ log('🌊 New game! '+S.players.map(p=>p.tok+p.name).join(', '));log(`— ${cp().name}'s turn —`);
+}
+function rent(i,ctx){const s=SQ[i],o=S.own[i];if(!o||o.m)return 0;
+ if(s.t==='prop')return o.h>0?s.r[o.h]:s.r[0]*(hasSet(o.o,s.g)?2:1);
+ if(s.t==='stn')return 25*Math.pow(2,countT(o.o,'stn')-1)*((ctx&&ctx.mult)||1);
+ if(ctx&&ctx.util10)return 10*ctx.roll;return (countT(o.o,'util')===2?10:4)*sum();}
+function canBuild(id,i){const s=SQ[i],o=S.own[i];if(!o||o.o!==id||s.t!=='prop'||!hasSet(id,s.g)||o.h>=5)return false;const gr=GI[s.g];
+ if(gr.some(j=>S.own[j].m))return false;if(o.h>Math.min(...gr.map(j=>S.own[j].h)))return false;return S.players[id].money>=s.h}
+function canSell(id,i){const s=SQ[i],o=S.own[i];return !!o&&o.o===id&&o.h>0&&o.h>=Math.max(...GI[s.g].map(j=>S.own[j].h))}
+function canMort(id,i){const s=SQ[i],o=S.own[i];return !!o&&o.o===id&&!o.m&&(s.t!=='prop'||!grpHouses(s.g))}
+const unmortCost=i=>Math.ceil(SQ[i].p/2*1.1);
+function canUnmort(id,i){const o=S.own[i];return !!o&&o.o===id&&o.m&&S.players[id].money>=unmortCost(i)}
+function build(i){const o=S.own[i];if(!canBuild(o.o,i))return;S.players[o.o].money-=SQ[i].h;o.h++;log(`🏗️ ${S.players[o.o].name} built ${o.h===5?'a hotel':'house #'+o.h} on ${SQ[i].n}`)}
+function sell(i){const o=S.own[i];if(!canSell(o.o,i))return;o.h--;S.players[o.o].money+=SQ[i].h/2;log(`🔨 ${S.players[o.o].name} sold a building on ${SQ[i].n}`)}
+function mortgage(i){const o=S.own[i];if(!canMort(o.o,i))return;o.m=true;S.players[o.o].money+=SQ[i].p/2;log(`🏦 ${S.players[o.o].name} mortgaged ${SQ[i].n} (+$${SQ[i].p/2})`)}
+function unmortgage(i){const o=S.own[i];if(!canUnmort(o.o,i))return;S.players[o.o].money-=unmortCost(i);o.m=false;log(`🔓 ${S.players[o.o].name} unmortgaged ${SQ[i].n}`)}
+function worth(p){let w=p.money;ownedBy(p.id).forEach(i=>{const o=S.own[i];w+=o.m?SQ[i].p/2:SQ[i].p;if(o.h)w+=o.h*SQ[i].h});return w}
+function liquid(p){let w=p.money;ownedBy(p.id).forEach(i=>{const o=S.own[i];if(!o.m)w+=SQ[i].p/2;if(o.h)w+=o.h*SQ[i].h/2});return w}
+function toName(to){return typeof to==='number'?S.players[to].name:Array.isArray(to)?'the other players':to==='pot'&&S.set.fp?'the Free Parking pot':'the bank'}
+function transfer(p,amt,to){p.money-=amt;if(to==='pot'){if(S.set.fp)S.pot+=amt}else if(Array.isArray(to)){to.forEach(id=>S.players[id].money+=amt/to.length)}else if(typeof to==='number')S.players[to].money+=amt}
+function pay(p,amt,to,after){if(amt<=0)return true;if(p.money>=amt){transfer(p,amt,to);return true}
+ if(p.id===S.cur){S.debt={pid:p.id,amt,to,after:after||'finish'};S.phase='debt';log(`⚠️ ${p.name} owes $${amt} to ${toName(to)} but only has $${p.money}`);return false}
+ raiseFunds(p,amt);if(p.money>=amt){transfer(p,amt,to);return true}bankrupt(p,to);return false}
+function payDebt(){const d=S.debt,p=cp();if(S.phase!=='debt'||!d||p.money<d.amt)return;transfer(p,d.amt,d.to);log(`${p.name} paid $${d.amt}`);S.debt=null;S.phase='moving';
+ if(d.after==='jailmove'){p.jail=false;p.jt=0;move(p,sum())}afterAction()}
+function declareBankrupt(){const d=S.debt,p=cp();if(S.phase!=='debt')return;S.debt=null;bankrupt(p,d.to)}
+function bankrupt(p,to){if(p.out)return;p.out=true;log(`💥 ${p.name} is BANKRUPT!`);drink(`${p.name} finishes their drink!`);
+ const props=ownedBy(p.id);props.forEach(i=>{const o=S.own[i];if(o.h){p.money+=o.h*SQ[i].h/2;o.h=0}});
+ if(typeof to==='number'){const c=S.players[to];c.money+=Math.max(0,p.money);c.cards+=p.cards;props.forEach(i=>S.own[i].o=to);log(`${c.name} takes over ${p.name}'s assets`)}
+ else props.forEach(i=>delete S.own[i]);
+ p.money=0;p.cards=0;p.jail=false;
+ const a=alive();if(a.length<=1){S.winner=a[0]?a[0].id:p.id;S.phase='over';log(`🏆 ${S.players[S.winner].name} wins!`);return}
+ if(p.id===S.cur)nextTurn();}
+function nextTurn(){if(S.winner!=null)return;S.turns++;
+ if(S.turns>=S.cap){const w=alive().sort((a,b)=>worth(b)-worth(a))[0];S.winner=w.id;S.capped=true;S.phase='over';log(`⏱️ Turn limit — richest player ${w.name} wins!`);return}
+ let n=S.cur;do{n=(n+1)%S.players.length}while(S.players[n].out);S.cur=n;const p=cp();p.dbl=0;S.again=false;S.debt=null;S.phase=p.jail?'jail':'roll';log(`— ${p.name}'s turn —`)}
+function rollDice(){const d=forced||[d6(),d6()];forced=null;S.dice=d;return d[0]===d[1]}
+function roll(){if(S.phase!=='roll')return;const p=cp(),dbl=rollDice();log(`🎲 ${p.name} rolled ${S.dice[0]}+${S.dice[1]}${dbl?' — doubles!':''}`);
+ if(dbl){p.dbl++;if(p.dbl>=3){log('Three doubles in a row!');drink(`${p.name}: three doubles — skol!`);goJail(p);S.phase='end';return}S.again=true}else S.again=false;
+ S.phase='moving';move(p,sum());afterAction()}
+function afterAction(){if(S.winner!=null||S.phase==='debt'||S.phase==='buy')return;const p=cp();if(p.out)return;if(S.phase==='moving')finishMove()}
+function finishMove(){const p=cp();S.phase=(S.again&&!p.jail)?'roll':'end'}
+function passGo(p){p.money+=200;log(`${p.name} passed GO, +$200`)}
+function move(p,n){const np=p.pos+n;if(np>=40)passGo(p);p.pos=np%40;land(p)}
+function moveTo(p,i,ctx){if(i<p.pos)passGo(p);p.pos=i;land(p,ctx)}
+function goJail(p){p.pos=10;p.jail=true;p.jt=0;S.again=false;log(`🚔 ${p.name} goes to Jail!`);drink(`${p.name} is in the lock-up — two sips`)}
+function land(p,ctx){const i=p.pos,s=SQ[i];
+ if(isBuy(i)){const o=S.own[i];if(!o){S.phase='buy';log(`${p.name} landed on ${s.n} ($${s.p})`);return}
+  if(o.o===p.id){log(`${p.name} landed on their own ${s.n}`);return}if(o.m){log(`${s.n} is mortgaged — no rent`);return}
+  const r=rent(i,ctx);log(`💸 ${p.name} owes $${r} rent to ${S.players[o.o].name} for ${s.n}`);drink(`${p.name} pays rent — take a sip`);pay(p,r,o.o);return}
+ switch(s.t){case 'tax':log(`🧾 ${p.name}: ${s.n} $${s.amt}`);pay(p,s.amt,'pot');break;
+ case 'gtj':goJail(p);break;
+ case 'fp':if(S.set.fp&&S.pot>0){log(`🎉 ${p.name} scoops the Free Parking pot: $${S.pot}`);p.money+=S.pot;S.pot=0;drink('Jackpot! Everyone else drinks')}else log(`${p.name} is chilling at Free Parking`);break;
+ case 'chance':case 'chest':drawCard(p,s.t);break;
+ case 'jail':log(`${p.name} is just visiting the lock-up`);break}}
+function drawCard(p,t){if(!S.decks[t].length)S.decks[t]=shuffle(range(16));const c=CARDS[t][S.decks[t].pop()];S.lastCard=(t==='chance'?'❓ Fair Dinkum: ':'🧊 Esky: ')+c.x;log(`🃏 ${p.name} — ${S.lastCard}`);
+ if(c.m!=null){if(c.m>=0)p.money+=c.m;else pay(p,-c.m,'pot')}
+ else if(c.mv!=null)moveTo(p,c.mv);
+ else if(c.near){let j=p.pos;do{j=(j+1)%40}while(SQ[j].t!==c.near);moveTo(p,j,c.near==='stn'?{mult:2}:{util10:true,roll:d6()+d6()})}
+ else if(c.back){p.pos=(p.pos+37)%40;land(p)}
+ else if(c.jail)goJail(p);else if(c.goo)p.cards++;
+ else if(c.each){const others=alive().filter(o=>o.id!==p.id);if(c.each>0)others.forEach(o=>{if(!p.out)pay(o,c.each,p.id)});else pay(p,-c.each*others.length,others.map(o=>o.id))}
+ else if(c.rep){let h=0,ht=0;ownedBy(p.id).forEach(i=>{const x=S.own[i].h;if(x===5)ht++;else h+=x});pay(p,h*c.rep[0]+ht*c.rep[1],'pot')}}
+function buy(){if(S.phase!=='buy')return;const p=cp(),i=p.pos,s=SQ[i];if(p.money<s.p)return;transfer(p,s.p,'bank');S.own[i]={o:p.id,h:0,m:false};log(`🏠 ${p.name} bought ${s.n} for $${s.p}`);S.phase='moving';finishMove()}
+function decline(){if(S.phase!=='buy')return;log(`${cp().name} passed on ${SQ[cp().pos].n}`);S.phase='moving';finishMove()}
+function endTurn(){if(S.phase!=='end')return;nextTurn()}
+function release(p){p.jail=false;p.jt=0}
+function jailPay(){const p=cp();if(S.phase!=='jail'||p.money<50)return;transfer(p,50,'pot');release(p);log(`${p.name} paid $50 bail`);S.phase='roll'}
+function jailCard(){const p=cp();if(S.phase!=='jail'||!p.cards)return;p.cards--;release(p);log(`${p.name} used a Get Out of Jail Free card`);S.phase='roll'}
+function jailRoll(){if(S.phase!=='jail')return;const p=cp(),dbl=rollDice();S.again=false;log(`🎲 ${p.name} rolled ${S.dice[0]}+${S.dice[1]} in jail`);
+ if(dbl){release(p);log(`${p.name} rolled doubles and walks free!`);S.phase='moving';move(p,sum());afterAction();return}
+ p.jt++;if(p.jt>=3){log(`${p.name} must pay $50 bail after 3 tries`);S.phase='moving';if(pay(p,50,'pot','jailmove')){release(p);move(p,sum());afterAction()}return}
+ S.phase='end'}
+/* trades: {a,b,ap:[],bp:[],ac,bc} a gives ap+ac, b gives bp+bc */
+function tradable(i){const o=S.own[i];return !!o&&(SQ[i].t!=='prop'||!grpHouses(SQ[i].g))}
+function tradeValid(t){const A=S.players[t.a],B=S.players[t.b];if(!A||!B||A.out||B.out||t.a===t.b)return false;
+ if(t.ac<0||t.bc<0||t.ac>A.money||t.bc>B.money)return false;if(!t.ap.length&&!t.bp.length&&!t.ac&&!t.bc)return false;
+ return t.ap.every(i=>S.own[i]&&S.own[i].o===t.a&&tradable(i))&&t.bp.every(i=>S.own[i]&&S.own[i].o===t.b&&tradable(i))}
+function doTrade(t){if(!tradeValid(t))return false;const A=S.players[t.a],B=S.players[t.b];t.ap.forEach(i=>S.own[i].o=t.b);t.bp.forEach(i=>S.own[i].o=t.a);
+ A.money+=t.bc-t.ac;B.money+=t.ac-t.bc;log(`🤝 Trade: ${A.name} ⇄ ${B.name}`);return true}
+function pval(i,id,gaining){const s=SQ[i];let v=s.p*(S.own[i].m?0.55:1);
+ if(s.g){const others=GI[s.g].filter(j=>j!==i);if(others.every(j=>S.own[j]&&S.own[j].o===id))v+=s.p*1.5;}
+ else{v+=countT(id,s.t)*40}
+ return v}
+function botAccepts(t){// b is the bot evaluating
+ const b=t.b,a=t.a;let get=t.ac,give=t.bc;
+ t.ap.forEach(i=>get+=pval(i,b));
+ t.bp.forEach(i=>{give+=pval(i,b);const s=SQ[i];if(s.g){const rest=GI[s.g].filter(j=>j!==i);if(rest.every(j=>S.own[j]&&S.own[j].o===a))give+=s.p*0.4}});
+ if(S.players[b].money-t.bc+t.ac<50)return false;return get>=give*1.15&&get>0}
+/* ================= BOT AI ================= */
+function unownedCount(){return SQ.filter((s,i)=>isBuy(i)&&!S.own[i]).length}
+function raiseFunds(p,amt){let g=0;while(p.money<amt&&g++<300){const s=ownedBy(p.id).filter(i=>canSell(p.id,i));if(s.length){s.sort((a,b)=>SQ[a].h-SQ[b].h);sell(s[0]);continue}
+ const m=ownedBy(p.id).filter(i=>canMort(p.id,i));if(m.length){const sc=i=>SQ[i].p+(SQ[i].g&&hasSet(p.id,SQ[i].g)?2000:0);m.sort((a,b)=>sc(a)-sc(b));mortgage(m[0]);continue}break}}
+function botManage(p){ownedBy(p.id).forEach(i=>{if(S.own[i].m&&p.money-unmortCost(i)>=350)unmortgage(i)});
+ let g=0;while(g++<40){const c=ownedBy(p.id).filter(i=>canBuild(p.id,i)&&p.money-SQ[i].h>=180);if(!c.length)break;c.sort((a,b)=>S.own[a].h-S.own[b].h||SQ[b].p-SQ[a].p);build(c[0])}}
+function botTrade(p){if(rnd()>0.35)return;for(const g in GI){const gr=GI[g];const mine=gr.filter(i=>S.own[i]&&S.own[i].o===p.id);if(mine.length!==gr.length-1)continue;
+ const miss=gr.find(i=>!(S.own[i]&&S.own[i].o===p.id));const o=S.own[miss];if(!o)continue;const q=S.players[o.o];if(q.out||!q.bot||grpHouses(g))continue;
+ const key=p.id+'-'+miss;if(S.trades[key]&&S.turns-S.trades[key]<30)continue;S.trades[key]=S.turns;
+ const offer=Math.round(SQ[miss].p*1.75/10)*10;if(p.money-offer<150)continue;const t={a:p.id,b:q.id,ap:[],bp:[miss],ac:offer,bc:0};
+ if(botAccepts(t)){doTrade(t);log(`${p.name} bought ${SQ[miss].n} from ${q.name} for $${offer}`)}else log(`${q.name} knocked back ${p.name}'s offer for ${SQ[miss].n}`)}}
+function botStep(){const p=cp();switch(S.phase){
+ case 'jail':if(p.cards)jailCard();else if(p.money>300&&unownedCount()>6)jailPay();else jailRoll();break;
+ case 'roll':botManage(p);roll();break;
+ case 'buy':{const s=SQ[p.pos];if(p.money-s.p>=(unownedCount()>14?60:120))buy();else decline();break}
+ case 'debt':{const d=S.debt;raiseFunds(p,d.amt);if(p.money>=d.amt)payDebt();else declareBankrupt();break}
+ case 'end':botManage(p);botTrade(p);endTurn();break;
+ default:S.phase='end';}}
+function simulate(games,nb){const keep=S,res={games:0,natural:0,capped:0,turns:[],errors:[],steps:0};SIM=true;
+ try{for(let g=0;g<games;g++){newGame(range(nb).map(i=>({name:BOTN[i],tok:TOKENS[i],bot:true})),{fp:g%2===0,drink:g%3===0});let st=0;
+  while(S.winner==null&&st<200000){botStep();st++;
+   for(const p of S.players){if(!isFinite(p.money))throw Error('NaN money');if(!p.out&&p.money<0&&S.phase!=='debt')throw Error('negative money '+p.name+' '+p.money+' phase '+S.phase)}
+   for(const k in S.own){const o=S.own[k];if(o.h<0||o.h>5||S.players[o.o].out)throw Error('bad own '+k)}}
+  if(S.winner==null)res.errors.push('no finish in game '+g);res.games++;res.steps+=st;res.turns.push(S.turns);if(S.capped)res.capped++;else res.natural++}}
+ catch(e){res.errors.push(String(e&&e.stack||e))}finally{SIM=false;S=keep}return res}
+</script>
+<script>
+'use strict';
+/* ================= UI ================= */
+const $=id=>document.getElementById(id);
+const store={get(k){try{return window.localStorage.getItem(k)}catch(e){return null}},set(k,v){try{window.localStorage.setItem(k,v)}catch(e){}},del(k){try{window.localStorage.removeItem(k)}catch(e){}}};
+const KEY='coastopoly_save_v1';
+let cfg={h:2,b:1,names:['Cooter','Player 2','Player 3','Player 4','Player 5','Player 6']},zoom=1,disp=[],animT=null,botT=null;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function showScreen(n){closeDlg();document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id==='scr-'+n));window.scrollTo(0,0);if(n==='setup')renderSetup()}
+function openDlg(html,bind){$('dlg').innerHTML=html;$('ovl').classList.add('on');if(bind)bind($('dlg'))}
+function closeDlg(){$('ovl').classList.remove('on');$('dlg').innerHTML='';dlgKind=null}
+let dlgKind=null;
+$('ovl').addEventListener('click',e=>{if(e.target.id==='ovl'&&dlgKind!=='modal'){closeDlg();after()}});
+let toastT;hooks.toast=m=>{const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>t.style.display='none',2200)};
+function save(){if(S&&S.winner==null)store.set(KEY,JSON.stringify(S));else store.del(KEY)}
+/* setup */
+function renderSetup(){$('nH').textContent=cfg.h;$('nB').textContent=cfg.b;let h='';for(let i=0;i<cfg.h;i++)h+=`<div class="row" style="margin:4px 0"><span style="font-size:24px">${TOKENS[i]}</span><input class="grow" data-nm="${i}" maxlength="14" value="${esc(cfg.names[i])}"></div>`;
+ for(let i=0;i<cfg.b;i++)h+=`<div style="opacity:.75;padding:4px 0">${TOKENS[cfg.h+i]} ${BOTN[i]} 🤖</div>`;$('names').innerHTML=h;
+ $('names').querySelectorAll('input').forEach(inp=>inp.oninput=()=>cfg.names[+inp.dataset.nm]=inp.value);
+ let ok=false;const raw=store.get(KEY);if(raw){try{const s=JSON.parse(raw);ok=!!(s&&s.players&&s.winner==null)}catch(e){}}$('resumeBox').style.display=ok?'block':'none'}
+document.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{const[k,d]=b.dataset.st.split(':');cfg[k]+=+d;cfg.h=Math.max(1,Math.min(6,cfg.h));cfg.b=Math.max(0,Math.min(5,cfg.b));
+ if(cfg.h+cfg.b>6){if(k==='h')cfg.b=6-cfg.h;else cfg.h=6-cfg.b}if(cfg.h+cfg.b<2){if(k==='h')cfg.b=2-cfg.h;else cfg.h=2-cfg.b}renderSetup()});
+$('btnStart').onclick=()=>{const list=[];for(let i=0;i<cfg.h;i++)list.push({name:(cfg.names[i]||'').trim()||'Player '+(i+1),tok:TOKENS[i],bot:false});
+ for(let i=0;i<cfg.b;i++)list.push({name:BOTN[i],tok:TOKENS[cfg.h+i],bot:true});
+ newGame(list,{fp:$('optFP').checked,drink:$('optDrink').checked,speed:+$('optSpeed').value});startUI()};
+$('btnResume').onclick=()=>{try{const s=JSON.parse(store.get(KEY));if(!s||!s.players)throw 0;S=s;startUI()}catch(e){hooks.toast('Could not load save');store.del(KEY);renderSetup()}};
+$('btnAgain').onclick=()=>showScreen('setup');
+function startUI(){disp=S.players.map(p=>p.pos);buildBoard();showScreen('game');after()}
+/* board */
+function cell(i){if(i===0)return[11,11];if(i<10)return[11,11-i];if(i===10)return[11,1];if(i<20)return[11-(i-10),1];if(i===20)return[1,1];if(i<30)return[1,1+(i-20)];if(i===30)return[1,11];return[1+(i-30),11]}
+const ICON={go:'➡️',chest:'🧊',chance:'❓',tax:'🧾',stn:'🚆',util:'',jail:'🚔',fp:'🅿️',gtj:'👮'};
+function buildBoard(){let h='';SQ.forEach((s,i)=>{const[r,c]=cell(i),corner=i%10===0;let ic=s.t==='util'?(i===12?'⚡':'💧'):ICON[s.t]||'';
+ h+=`<div class="sq${corner?' corner':''}" id="sq${i}" data-i="${i}" style="grid-row:${r};grid-column:${c}">${s.g?`<div class="bar" style="background:${G[s.g][0]}"></div>`:''}${ic?`<div class="ic">${ic}</div>`:''}<div class="nm">${esc(i===10?'Jail / Just Visiting':s.n)}</div>${s.p?`<div class="pr">$${s.p}</div>`:s.amt?`<div class="pr">$${s.amt}</div>`:''}<div class="hs"></div><div class="ow"></div><div class="tk"></div></div>`});
+ h+='<div id="center"><div class="logo">COASTOPOLY</div><div id="dice">⚀⚀</div><div id="ccard"></div><div id="pot"></div></div>';$('board').innerHTML=h;setZoom(zoom)}
+$('board').addEventListener('click',e=>{const q=e.target.closest('.sq');if(q)propCard(+q.dataset.i)});
+function setZoom(z){zoom=z;$('board').style.setProperty('--bs',(Math.min(window.innerWidth,480)-22)*z+'px');centerOn()}
+document.querySelectorAll('[data-z]').forEach(b=>b.onclick=()=>setZoom(+b.dataset.z));
+function centerOn(){if(!S)return;const el=$('sq'+disp[S.cur]),w=$('bwrap');if(!el||zoom===1)return;w.scrollLeft=el.offsetLeft-w.clientWidth/2+el.offsetWidth/2;w.scrollTop=el.offsetTop-w.clientHeight/2+el.offsetHeight/2}
+const DF=['','⚀','⚁','⚂','⚃','⚄','⚅'];
+function renderBoard(){SQ.forEach((s,i)=>{const el=$('sq'+i);if(!el)return;const o=S.own[i];const ow=el.querySelector('.ow');ow.style.background=o?S.players[o.o].col:'transparent';ow.classList.toggle('m',!!(o&&o.m));
+ el.querySelector('.hs').textContent=o&&o.h?(o.h===5?'🏨':'🏠'.repeat(o.h)):'';el.classList.toggle('hl',i===disp[S.cur]);
+ el.querySelector('.tk').innerHTML=S.players.filter(p=>!p.out&&disp[p.id]===i).map(p=>`<span class="${p.id===S.cur?'cur':''}">${p.tok}</span>`).join('')});
+ $('dice').textContent=DF[S.dice[0]]+DF[S.dice[1]];$('ccard').textContent=S.lastCard||'';$('pot').textContent=S.set.fp?`🅿️ Pot: $${S.pot}`:''}
+/* animation */
+function animating(){return S&&S.players.some(p=>!p.out&&disp[p.id]!==p.pos)}
+function runAnim(){if(animT)return;const step=()=>{animT=null;if(!S)return;let moving=false;S.players.forEach(p=>{if(p.out){disp[p.id]=p.pos;return}if(disp[p.id]!==p.pos){const d=(p.pos-disp[p.id]+40)%40;if(d>12||S.set.speed===0)disp[p.id]=p.pos;else disp[p.id]=(disp[p.id]+1)%40;moving=true}});
+ renderBoard();if(moving&&animating()){animT=setTimeout(step,Math.max(40,S.set.speed/7));centerOn()}else{centerOn();schedule()}};animT=setTimeout(step,S.set.speed===0?0:60)}
+/* main render */
+function after(){if(!S)return;save();if(S.winner!=null){gameOver();return}render();if(animating())runAnim();else schedule()}
+function schedule(){if(!S||S.winner!=null||botT||animating())return;const p=cp();if(!$('scr-game').classList.contains('on'))return;
+ if(p.bot){botT=setTimeout(()=>{botT=null;if(!S||S.winner!=null||!cp().bot||!$('scr-game').classList.contains('on'))return;try{botStep()}catch(e){console.error(e);S.phase='end';try{nextTurn()}catch(_){}}after()},S.set.speed);return}
+ const humans=S.players.filter(q=>!q.bot&&!q.out).length;if(humans>1&&S.passShown!==S.turns&&(S.phase==='roll'||S.phase==='jail')&&!$('ovl').classList.contains('on')){S.passShown=S.turns;save();
+  openDlg(`<h2>📱 Pass the phone</h2><p style="font-size:20px">Hand it to <b>${p.tok} ${esc(p.name)}</b></p><button class="gold full" id="dGo">I'm ${esc(p.name)} — let's go</button>`,d=>d.querySelector('#dGo').onclick=()=>closeDlg());dlgKind='modal'}}
+function render(){const p=cp();$('who').innerHTML=`<span class="tok">${p.tok}</span><span>${esc(p.name)}${p.bot?' 🤖':''}</span><span class="m">$${p.money}</span>`;
+ let st='',a=[];const sq=SQ[p.pos];
+ if(p.bot){st=`${p.name} is having a think…`}
+ else switch(S.phase){
+  case 'jail':st=`🚔 In jail (attempt ${p.jt+1}/3)`;a.push(`<button class="big" data-a="jroll">🎲 Roll for doubles</button>`,`<button data-a="jpay" ${p.money<50?'disabled':''}>Pay $50 bail</button>`,`<button data-a="jcard" ${p.cards?'':'disabled'}>Use card (${p.cards})</button>`);break;
+  case 'roll':st=S.again?'Doubles! Roll again.':'Your roll.';a.push(`<button class="big" data-a="roll">🎲 ROLL</button>`);break;
+  case 'buy':st=`Buy ${sq.n} for $${sq.p}? (rent from $${sq.r?sq.r[0]:sq.t==='stn'?25:'4×dice'})`;a.push(`<button class="gold" data-a="buy" ${p.money<sq.p?'disabled':''}>Buy $${sq.p}</button>`,`<button class="sec" data-a="skip">No thanks</button>`,`<button class="sec" data-a="card">🔍 View card</button>`);break;
+  case 'debt':st=`⚠️ You owe $${S.debt.amt} to ${toName(S.debt.to)}. Sell/mortgage to raise cash (worth $${liquid(p)}).`;a.push(`<button class="gold" data-a="pay" ${p.money<S.debt.amt?'disabled':''}>Pay $${S.debt.amt}</button>`,`<button class="warn" data-a="bk">Declare bankrupt</button>`);break;
+  case 'end':st='Manage, trade, or end your turn.';a.push(`<button class="big" data-a="end">✅ End turn</button>`);break}
+ if(!p.bot&&S.phase!=='over'){a.push(`<button class="sec" data-a="manage">🏗️ Build / Mortgage</button>`);if(S.phase==='roll'||S.phase==='end')a.push(`<button class="sec" data-a="trade">🤝 Trade</button>`)}
+ $('status').textContent=st;$('acts').innerHTML=a.join('');
+ $('plist').innerHTML=S.players.map(q=>`<div class="pl${q.id===S.cur?' cur':''}${q.out?' out':''}" data-p="${q.id}"><span class="dot" style="background:${q.col}"></span><span style="font-size:22px">${q.tok}</span><div class="grow" style="flex:1"><b>${esc(q.name)}</b>${q.bot?' 🤖':''}${q.jail?' 🚔':''}${q.cards?' 🎟️×'+q.cards:''}<div class="props">${ownedBy(q.id).map(i=>`<i title="${esc(SQ[i].n)}" style="background:${SQ[i].g?G[SQ[i].g][0]:SQ[i].t==='stn'?'#333':'#999'};${S.own[i].m?'opacity:.35':''}"></i>`).join('')}</div></div><b style="color:#7fe08a">$${q.money}</b></div>`).join('');
+ $('log').innerHTML=S.log.slice(0,60).map(l=>`<div>${esc(l)}</div>`).join('');renderBoard()}
+$('acts').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled||!S||cp().bot)return;const k=b.dataset.a;
+ const map={jroll:jailRoll,jpay:jailPay,jcard:jailCard,roll:roll,buy:buy,skip:decline,pay:payDebt,end:endTurn};
+ if(map[k]){map[k]();after()}else if(k==='card')propCard(cp().pos);else if(k==='manage')manage();else if(k==='trade')tradeDlg();
+ else if(k==='bk')openDlg(`<h2>Declare bankruptcy?</h2><p>You'll be out of the game and your assets go to ${esc(toName(S.debt.to))}.</p><div class="btns"><button class="sec" id="n">Cancel</button><button class="warn" id="y">Yes, I'm broke</button></div>`,d=>{d.querySelector('#n').onclick=closeDlg;d.querySelector('#y').onclick=()=>{closeDlg();declareBankrupt();after()}})});
+$('plist').addEventListener('click',e=>{const r=e.target.closest('.pl');if(!r)return;const q=S.players[+r.dataset.p];
+ openDlg(`<h2>${q.tok} ${esc(q.name)}</h2><p>Cash $${q.money} · Net worth $${worth(q)}${q.cards?' · '+q.cards+' jail card(s)':''}</p>${ownedBy(q.id).map(i=>`<div class="mrow"><span class="sw" style="background:${SQ[i].g?G[SQ[i].g][0]:'#555'}"></span><span class="nm">${esc(SQ[i].n)}${S.own[i].h?' — '+(S.own[i].h===5?'🏨':S.own[i].h+'🏠'):''}${S.own[i].m?' (mortgaged)':''}</span></div>`).join('')||'<p>No properties yet.</p>'}<button class="sec full" style="margin-top:10px" id="c">Close</button>`,d=>d.querySelector('#c').onclick=closeDlg)});
+function propCard(i){const s=SQ[i],o=S&&S.own[i];let body='';
+ if(s.t==='prop')body=`<table><tr><td>Rent</td><td>$${s.r[0]}</td></tr><tr><td>Full colour set</td><td>$${s.r[0]*2}</td></tr>${[1,2,3,4].map(h=>`<tr><td>With ${h} house${h>1?'s':''}</td><td>$${s.r[h]}</td></tr>`).join('')}<tr><td>With hotel</td><td>$${s.r[5]}</td></tr><tr><td>House cost</td><td>$${s.h}</td></tr><tr><td>Mortgage value</td><td>$${s.p/2}</td></tr></table>`;
+ else if(s.t==='stn')body='<table><tr><td>1 station</td><td>$25</td></tr><tr><td>2 stations</td><td>$50</td></tr><tr><td>3 stations</td><td>$100</td></tr><tr><td>4 stations</td><td>$200</td></tr><tr><td>Mortgage</td><td>$100</td></tr></table>';
+ else if(s.t==='util')body='<table><tr><td>1 utility</td><td>4× dice</td></tr><tr><td>Both utilities</td><td>10× dice</td></tr><tr><td>Mortgage</td><td>$75</td></tr></table>';
+ else body=`<p style="padding:12px">${{go:'Collect $200 as you pass.',chest:'Draw an Esky card.',chance:'Draw a Fair Dinkum card.',tax:'Pay $'+s.amt+'.',jail:'Just visiting… or locked up.',fp:'Take a breather.'+(S&&S.set.fp?' Collect the pot!':''),gtj:'Go directly to Jail. Do not pass GO.'}[s.t]}</p>`;
+ openDlg(`<div class="pc"><div class="hd" style="background:${s.g?G[s.g][0]:'#ddd'};color:${s.g==='dblue'||s.g==='green'||s.g==='brown'?'#fff':'#222'}">${esc(s.n)}${s.p?' — $'+s.p:''}</div>${body}${o?`<p style="padding:0 12px 10px">Owner: <b>${esc(S.players[o.o].name)}</b>${o.m?' (mortgaged)':''}${o.h?' · '+(o.h===5?'hotel':o.h+' house(s)'):''}</p>`:''}</div><button class="sec full" id="c">Close</button>`,d=>d.querySelector('#c').onclick=()=>{closeDlg();schedule()})}
+function manage(){const p=cp();const draw=()=>{const L=ownedBy(p.id);
+ $('dlg').innerHTML=`<h2>🏗️ Build / Mortgage</h2><p>Cash: <b>$${p.money}</b>${S.phase==='debt'?` · Owe $${S.debt.amt}`:''}</p>${L.map(i=>{const s=SQ[i],o=S.own[i];return `<div class="mrow"><span class="sw" style="background:${s.g?G[s.g][0]:'#555'}"></span><span class="nm">${esc(s.n)}<br><small>${o.m?'Mortgaged':o.h===5?'🏨 Hotel':o.h?'🏠×'+o.h:''}</small></span>${s.t==='prop'?`<button class="sm" data-m="b${i}" ${canBuild(p.id,i)?'':'disabled'}>+🏠 $${s.h}</button><button class="sm sec" data-m="s${i}" ${canSell(p.id,i)?'':'disabled'}>−🏠</button>`:''}${o.m?`<button class="sm gold" data-m="u${i}" ${canUnmort(p.id,i)?'':'disabled'}>Unmort $${unmortCost(i)}</button>`:`<button class="sm warn" data-m="m${i}" ${canMort(p.id,i)?'':'disabled'}>Mortg +$${s.p/2}</button>`}</div>`}).join('')||'<p>You own nothing yet.</p>'}<button class="sec full" style="margin-top:10px" id="c">Done</button>`;
+ $('dlg').querySelector('#c').onclick=()=>{closeDlg();after()};
+ $('dlg').querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const k=b.dataset.m[0],i=+b.dataset.m.slice(1);({b:build,s:sell,m:mortgage,u:unmortgage})[k](i);save();render();draw()})};
+ openDlg('',draw);}
+function tradeDlg(){const me=cp();const others=alive().filter(q=>q.id!==me.id);if(!others.length)return;let pid=others[0].id;
+ const draw=()=>{const q=S.players[pid];const col=(id)=>ownedBy(id).filter(tradable).map(i=>`<label><input type="checkbox" data-t="${id}" value="${i}"><span style="width:10px;height:10px;border-radius:2px;flex:none;background:${SQ[i].g?G[SQ[i].g][0]:'#555'}"></span>${esc(SQ[i].n)}${S.own[i].m?' (M)':''}</label>`).join('')||'<small>Nothing tradable</small>';
+  $('dlg').innerHTML=`<h2>🤝 Trade</h2><div class="row"><span>With</span><select id="tp" class="grow">${others.map(o=>`<option value="${o.id}" ${o.id===pid?'selected':''}>${o.tok} ${esc(o.name)}${o.bot?' 🤖':''}</option>`).join('')}</select></div>
+  <div class="tcol" style="margin-top:10px"><div><b>You give</b>${col(me.id)}<input id="ac" type="number" inputmode="numeric" min="0" placeholder="$ cash" style="width:100%"></div><div><b>${esc(q.name)} gives</b>${col(q.id)}<input id="bc" type="number" inputmode="numeric" min="0" placeholder="$ cash" style="width:100%"></div></div>
+  <div id="tmsg" style="min-height:22px;margin-top:8px;color:#f2b632"></div><div class="btns"><button class="sec" id="c">Cancel</button><button class="gold" id="go">Propose</button></div>`;
+  const d=$('dlg');d.querySelector('#tp').onchange=e=>{pid=+e.target.value;draw()};d.querySelector('#c').onclick=()=>{closeDlg();after()};
+  d.querySelector('#go').onclick=()=>{const t={a:me.id,b:pid,ap:[...d.querySelectorAll(`[data-t="${me.id}"]:checked`)].map(x=>+x.value),bp:[...d.querySelectorAll(`[data-t="${pid}"]:checked`)].map(x=>+x.value),ac:Math.max(0,Math.floor(+d.querySelector('#ac').value||0)),bc:Math.max(0,Math.floor(+d.querySelector('#bc').value||0))};
+   if(!tradeValid(t)){d.querySelector('#tmsg').textContent='Invalid trade (check cash amounts / pick something).';return}
+   if(q.bot){if(botAccepts(t)){doTrade(t);closeDlg();hooks.toast(`${q.name}: "Deal, mate!" 🤝`);after()}else{log(`${q.name} declined ${me.name}'s trade`);d.querySelector('#tmsg').textContent=`${q.name}: "Yeah nah, not worth it."`}}
+   else{const desc=x=>x.map(i=>SQ[i].n).join(', ');openDlg(`<h2>📱 ${esc(q.name)}, a trade offer</h2><p>${esc(me.name)} gives: ${esc(desc(t.ap)||'—')}${t.ac?' + $'+t.ac:''}</p><p>You give: ${esc(desc(t.bp)||'—')}${t.bc?' + $'+t.bc:''}</p><div class="btns"><button class="warn" id="n">Decline</button><button class="gold" id="y">Accept</button></div>`,dd=>{dlgKind='modal';dd.querySelector('#n').onclick=()=>{log(`${q.name} declined the trade`);closeDlg();after()};dd.querySelector('#y').onclick=()=>{doTrade(t);closeDlg();after()}})}}};
+ openDlg('',draw)}
+function gameOver(){const ranked=[...S.players].sort((a,b)=>(a.out-b.out)||worth(b)-worth(a));const w=S.players[S.winner];
+ store.del(KEY);showScreen('over');$('overBody').innerHTML=`<p style="font-size:24px;text-align:center">${w.tok} <b>${esc(w.name)}</b> owns the Coast!</p><p style="text-align:center;opacity:.8">${S.turns} turns${S.capped?' (turn limit)':''}</p>${ranked.map((p,k)=>`<div class="mrow"><span>${k+1}.</span><span style="font-size:22px">${p.tok}</span><span class="nm">${esc(p.name)}${p.out?' — bankrupt':''}</span><b>$${p.out?0:worth(p)}</b></div>`).join('')}`}
+$('btnMenu').onclick=()=>{openDlg(`<h2>☰ Menu</h2><div class="tog"><span>Bot speed</span><select id="ms">${[[900,'Slow'],[450,'Normal'],[150,'Fast'],[0,'Instant']].map(([v,n])=>`<option value="${v}" ${S.set.speed===v?'selected':''}>${n}</option>`).join('')}</select></div>
+ <div class="tog"><span>💰 Free Parking jackpot</span><input type="checkbox" id="mfp" ${S.set.fp?'checked':''}></div><div class="tog"><span>🍺 Drinking mode</span><input type="checkbox" id="mdr" ${S.set.drink?'checked':''}></div>
+ <div class="btns"><button class="sec" id="mq">💾 Save &amp; quit</button><button class="warn" id="mn">New game</button></div><button class="full" style="margin-top:10px" id="mc">Back to game</button>`,d=>{
+ d.querySelector('#ms').onchange=e=>{S.set.speed=+e.target.value;save()};d.querySelector('#mfp').onchange=e=>{S.set.fp=e.target.checked;save()};d.querySelector('#mdr').onchange=e=>{S.set.drink=e.target.checked;save()};
+ d.querySelector('#mc').onclick=()=>{closeDlg();after()};d.querySelector('#mq').onclick=()=>{save();stopTimers();showScreen('setup')};
+ d.querySelector('#mn').onclick=()=>openDlg(`<h2>Abandon this game?</h2><div class="btns"><button class="sec" id="n">Cancel</button><button class="warn" id="y">Yes, new game</button></div>`,dd=>{dd.querySelector('#n').onclick=()=>{closeDlg();after()};dd.querySelector('#y').onclick=()=>{store.del(KEY);stopTimers();S=null;showScreen('setup')}})})};
+$('btnLog').onclick=()=>openDlg(`<h2>📜 Log</h2><div style="font-size:14px">${S.log.map(l=>`<div style="padding:3px 0;border-bottom:1px solid #1d4d6d">${esc(l)}</div>`).join('')}</div><button class="sec full" id="c" style="margin-top:10px">Close</button>`,d=>d.querySelector('#c').onclick=()=>{closeDlg();schedule()});
+function stopTimers(){clearTimeout(botT);botT=null;clearTimeout(animT);animT=null}
+window.addEventListener('resize',()=>{if(S)setZoom(zoom)});
+window.CP={get S(){return S},set S(v){S=v},simulate,setDice:(a,b)=>forced=[a,b],after,cp,botAccepts,doTrade,SQ,GI};
+showScreen('setup');
+</script></body></html>

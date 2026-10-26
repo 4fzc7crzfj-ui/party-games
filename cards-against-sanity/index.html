@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#111111">
+<title>Cards Against Sanity</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:#141414;color:#f4f4f4}
+body{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:17px;line-height:1.35;-webkit-text-size-adjust:100%;min-height:100vh}
+button,input{font-family:inherit}
+button{touch-action:manipulation;-webkit-user-select:none;user-select:none;cursor:pointer}
+.hidden{display:none !important}
+#app{max-width:480px;margin:0 auto;min-height:100vh;padding:calc(14px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px}
+#app.has-footer{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
+h1{font-size:32px;line-height:1.05;margin:4px 0 0;letter-spacing:-.5px;font-weight:900}
+h2{font-size:24px;margin:0;font-weight:850;line-height:1.15}
+p{margin:0}
+.muted{color:#aaa;font-size:15px}
+.center{text-align:center}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:48px}
+.topbar .tb-title{font-weight:800;font-size:15px;color:#ccc;text-transform:uppercase;letter-spacing:1px}
+.icon-btn{min-width:48px;min-height:48px;border-radius:12px;border:1px solid #444;background:#222;color:#fff;font-size:20px;font-weight:700;padding:0 12px}
+.btn{display:block;width:100%;min-height:58px;border-radius:16px;border:2px solid #fff;background:#fff;color:#000;font-size:19px;font-weight:800;padding:12px 16px}
+.btn.dark{background:#000;color:#fff}
+.btn.ghost{background:transparent;color:#fff;border-color:#555}
+.btn.danger{background:#c62828;border-color:#c62828;color:#fff}
+.btn:disabled{opacity:.35}
+.btn:active:not(:disabled){transform:scale(.98)}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+.card{border-radius:16px;padding:18px 18px 16px;font-weight:800;position:relative;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+.card.black{background:#000;color:#fff;border:2px solid #fff;font-size:23px;line-height:1.25;min-height:170px;display:flex;flex-direction:column;justify-content:space-between}
+.card.black.small{font-size:19px;min-height:0}
+.card .brand{font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;opacity:.7;margin-top:14px;display:flex;justify-content:space-between;align-items:center}
+.pickbadge{background:#fff;color:#000;border-radius:999px;padding:3px 10px;font-size:12px;opacity:1}
+.blank{display:inline-block;min-width:80px;border-bottom:3px solid currentColor;height:1em;vertical-align:baseline}
+.ans{background:#fff;color:#000;border-radius:6px;padding:0 4px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.white .ans,.sub .ans{background:#000;color:#fff}
+.hand{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.wcard{background:#fff;color:#000;border:3px solid #fff;border-radius:14px;min-height:118px;padding:12px 12px 26px;font-size:16px;font-weight:800;text-align:left;line-height:1.25;position:relative;box-shadow:0 4px 12px rgba(0,0,0,.4);word-wrap:break-word}
+.wcard.sel{border-color:#ffcc00;box-shadow:0 0 0 3px #ffcc00}
+.wcard .num{position:absolute;right:8px;bottom:6px;background:#000;color:#ffcc00;border-radius:999px;min-width:26px;height:26px;font-size:15px;display:flex;align-items:center;justify-content:center;padding:0 6px}
+.wcard .tag{position:absolute;left:12px;bottom:6px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#888}
+.subs{display:flex;flex-direction:column;gap:12px}
+.sub{background:#fff;color:#111;border:3px solid #fff;border-radius:16px;padding:16px;font-size:19px;font-weight:700;text-align:left;line-height:1.3;min-height:64px;width:100%}
+.sub .lbl{display:block;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#777;margin-bottom:6px;font-weight:800}
+.sub.sel{border-color:#ffcc00;box-shadow:0 0 0 4px #ffcc00}
+.footer{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(to top,#141414 75%,rgba(20,20,20,0));padding:22px 16px calc(14px + env(safe-area-inset-bottom));z-index:20}
+.footer .inner{max-width:448px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.panel{background:#1f1f1f;border:1px solid #333;border-radius:16px;padding:14px}
+.field{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.field input{flex:1;min-height:52px;border-radius:12px;border:1px solid #555;background:#000;color:#fff;font-size:17px;padding:0 14px;-webkit-appearance:none;appearance:none}
+.field .icon-btn{min-width:52px;min-height:52px}
+.setting{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;border-top:1px solid #333}
+.setting:first-child{border-top:0}
+.setting .lab{font-weight:700}
+.setting .lab small{display:block;font-weight:400;color:#999;font-size:13px}
+.stepper{display:flex;align-items:center;gap:8px}
+.stepper span{min-width:34px;text-align:center;font-size:22px;font-weight:900}
+.toggle{min-width:76px;min-height:44px;border-radius:999px;border:2px solid #555;background:#222;color:#aaa;font-weight:800;font-size:15px}
+.toggle.on{background:#fff;color:#000;border-color:#fff}
+.err{color:#ff8a80;font-weight:700;min-height:1em}
+.scores{list-style:none;margin:0;padding:0}
+.scores li{display:flex;justify-content:space-between;align-items:center;padding:10px 4px;border-bottom:1px solid #333;font-weight:700;font-size:18px}
+.scores li:last-child{border-bottom:0}
+.scores li.czar span:first-child::after{content:" 👑"}
+.scores li.lead{color:#ffcc00}
+.pts{font-variant-numeric:tabular-nums}
+.big-emoji{font-size:64px;text-align:center;line-height:1}
+.pass-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;gap:22px;text-align:center;min-height:70vh}
+.pass-name{font-size:44px;font-weight:900;line-height:1.05;word-break:break-word}
+.reveal-list{display:flex;flex-direction:column;gap:8px}
+.reveal-list .r{background:#1f1f1f;border:1px solid #333;border-radius:12px;padding:10px 12px;font-size:15px}
+.reveal-list .r b{color:#ffcc00}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:100;display:flex;align-items:flex-end;justify-content:center;padding:16px 12px calc(16px + env(safe-area-inset-bottom))}
+.modal{background:#1c1c1c;border:1px solid #444;border-radius:20px;width:100%;max-width:456px;max-height:86vh;overflow:auto;-webkit-overflow-scrolling:touch;padding:18px;display:flex;flex-direction:column;gap:12px}
+.modal h2{font-size:22px}
+#toast{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top));transform:translateX(-50%);background:#ffcc00;color:#000;font-weight:800;padding:10px 16px;border-radius:999px;z-index:200;pointer-events:none;opacity:0;transition:opacity .25s;max-width:90vw;text-align:center;font-size:15px}
+#toast.show{opacity:1}
+.rules li{margin-bottom:6px}
+.botnames{display:block;font-weight:400;color:#ffcc00;font-size:13px}
+.thinking{display:flex;justify-content:center;gap:10px;margin:8px 0}
+.thinking i{width:14px;height:14px;border-radius:50%;background:#ffcc00;animation:think 1s infinite ease-in-out}
+.thinking i:nth-child(2){animation-delay:.15s}.thinking i:nth-child(3){animation-delay:.3s}
+@keyframes think{0%,80%,100%{transform:scale(.5);opacity:.4}40%{transform:scale(1);opacity:1}}
+.logo{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:#999;font-weight:800}
+</style>
+</head>
+<body>
+<div id="app" data-screen="" data-ready="0"></div>
+<div id="overlay" class="overlay hidden" aria-hidden="true"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+(function () {
+  'use strict';
+
+  var BLACK_CARDS = [
+"What ruined the footy trip?",
+"Nothing says romance like ___.",
+"My therapist says my problems all started with ___.",
+"What's that smell?",
+"The magpie didn't swoop me this year. I reckon it's because of ___.",
+"Centrelink has asked me to explain ___.",
+"Welcome to the Central Coast: sun, sand, and ___.",
+"My dad's only advice before my wedding: \"Steer clear of ___.\"",
+"Nobody at the barbie wanted to talk about ___.",
+"The real reason I gave up golf: ___.",
+"Karting was going great until ___ got involved.",
+"I came off the dirt bike, and all I could think about was ___.",
+"___: the reason I'm banned from the RSL.",
+"Mum, please stop posting on Facebook about ___.",
+"New at Bunnings: an entire aisle dedicated to ___.",
+"The group chat went dead silent after someone mentioned ___.",
+"Tradie's tip of the day: never start a job without ___.",
+"Grandpa's eulogy was just ten minutes about ___.",
+"You know it's an Aussie Christmas when someone brings up ___.",
+"Breaking news: Gosford man arrested over ___.",
+"Nothing ruins a putt like ___.",
+"After ten schooners, I'm suddenly up for ___.",
+"I got kicked out of the footy club over ___.",
+"My 20-year school reunion will forever be remembered for ___.",
+"Nothing livens up a funeral like ___.",
+"The neighbours called the cops because of ___.",
+"Why did the servo attendant cry?",
+"My lawyer read my will out loud, and it was mostly about ___.",
+"What's that noise coming from the shed?",
+"The lifeguards closed the beach because of ___.",
+"Why did Dad take four hours to get milk?",
+"The new tourism slogan: \"Come for the beaches, stay for ___.\"",
+"My nan's secret to a long life: ___.",
+"The vet reckons my dog's anxiety is down to ___.",
+"What's my excuse for being late to work this time?",
+"Hold my beer. This next bit involves ___.",
+"Overheard at the bottle-o: \"Mate, I'm done with ___.\"",
+"I'm sorry, Officer. I was distracted by ___.",
+"What's my mate's go-to move on a night out?",
+"The meat raffle got ugly over ___.",
+"Want to know my secret to winning at golf? ___.",
+"I asked for a quiet night in, but it turned into ___.",
+"Tonight on the six o'clock news: ___. Is your family at risk?",
+"This year's Australian of the Year award goes to ___.",
+"The Bunnings returns desk has seen a lot, but never ___.",
+"Thongs, a singlet, and a strong opinion about ___: the true spirit of Australia.",
+"Facebook Marketplace has gone too far with ___.",
+"Why do the work biscuits keep disappearing?",
+"Two stars on TripAdvisor: \"Lovely views, but ruined by ___.\"",
+"The Bunnings sausage sizzle was going well, but nobody expected ___.",
+"The golf club's new dress code bans ___.",
+"What did the Central Coast tourism brochure leave out?",
+"What did I spend my tax return on?",
+"What's the best hangover cure?",
+"I've been banned from the servo for ___.",
+"Nan's go-to insult is comparing people to ___.",
+"The magpies have formed a union, and their first demand is ___.",
+"Why did the barbie catch fire?",
+"I've got a tattoo of ___ on my left bum cheek.",
+"What's the most Aussie way to propose?",
+"The cops pulled over my Commodore and asked a lot of questions about ___.",
+"The dirt bike track has one rule, and it's about ___.",
+"Cause of death: ___.",
+"The coroner's report just says \"___.\"",
+"At my funeral, please play a slideshow of ___.",
+"Heaven turned out to be ___.",
+"Hell is just ___, forever.",
+"At least he went out the way he lived: ___.",
+"My tombstone will read: \"Here lies a legend. Killed by ___.\"",
+"The person on my left has the vibe of someone who peaked with ___.",
+"Be honest: the person on my right smells like ___.",
+"Whoever is holding this phone has the energy of ___.",
+"My parents are proud of me, except for ___.",
+"My greatest achievement so far: ___.",
+"My personality is 40% trauma and 60% ___.",
+"My LinkedIn says \"entrepreneur\", but all I ever post about is ___.",
+"Rock bottom at 37 looks a lot like ___.",
+"Nothing makes me shart quite like ___.",
+"That's not a fart. That's ___.",
+"I spewed at the footy presentation night, and I blame ___.",
+"The bottle-o knows me by name because of ___.",
+"I woke up in Gosford with no wallet, one thong, and vague memories of ___.",
+"Today's hangover is brought to you by ___.",
+"HR is still investigating the Christmas party, mostly because of ___.",
+"What happens on the footy trip stays on the footy trip, except ___.",
+"This year's Mad Monday theme: ___.",
+"I lost the house deposit on the pokies, but at least I still have ___.",
+"The pelican feeding at The Entrance was cancelled because of ___.",
+"Centrelink says my job search must now include ___.",
+"What does Centrelink count as \"mutual obligation\" these days?",
+"Front page of the Coast paper: locals up in arms over ___.",
+"The sausage sizzle tastes funny today. I blame ___.",
+"The bogan starter pack: a Commodore, a mullet, and ___.",
+"That magpie has hated me ever since the incident with ___.",
+"Magpie season is here, and my only defence is ___.",
+"My golf game is so bad, my caddie suggested ___.",
+"The golf club kicked me out, and they're blaming ___.",
+"The karting track banned me for life, and it's all because of ___.",
+"My kart was disqualified on account of ___.",
+"After the dirt bike crash, the paramedic asked if I remembered ___.",
+"The aliens finally landed, and all they wanted was ___.",
+"God's final message to humanity: ___.",
+"I traded my soul for ___.",
+"My new start-up is basically Uber, but for ___.",
+"Mum, Dad, I'm in love with ___, and I've never been happier.",
+"What's Dad's new hobby since the divorce?",
+"The Uber driver gave me one star because of ___.",
+"My mate's wedding speech went south when he mentioned ___.",
+"The work group chat has been renamed in honour of ___.",
+"Nan finally revealed the secret to her rissoles: ___.",
+"My therapist quit after I told her about ___.",
+"The real reason I'm single: ___.",
+"My New Year's resolution lasted right up until ___.",
+"I'd sell my nan for ___.",
+"I spend most of my work day thinking about ___.",
+"I'm not crying. I'm just thinking about ___.",
+"What got me kicked out of the family group chat?",
+"Sorry I'm late. I got held up by ___.",
+"The Centrelink worker went pale when I mentioned ___.",
+"Dad's last words: \"Whatever you do, don't forget about ___.\"",
+"My Bunnings sausage came with a warning label about ___.",
+"Ladies and gentlemen, the father of the bride's PowerPoint presentation: ___.",
+"Why did the RSL bingo caller get fired?",
+"What's keeping Dad up at night?",
+"The Central Coast Council has just spent $4 million on ___.",
+"This weekend at the RSL: live music, cheap schnitties, and ___.",
+"Why is Terrigal so expensive?",
+"Uncle Gary won't shut up about ___.",
+"What will the footy club never forgive?",
+"Nan's been acting strange ever since she found out about ___.",
+"What's the secret to a happy marriage?",
+"Science still can't explain ___.",
+"What's the worst thing about turning 40?",
+"My mate reckons the meaning of life is ___.",
+"Pop's war stories are 10% war and 90% ___.",
+"What's Australia's next big export?",
+"Coming soon to Netflix: a ten-part documentary about ___.",
+"I've got two weeks of annual leave, and I'm spending it on ___.",
+"What's in Dad's five-year plan?",
+"The bowls club AGM descended into chaos over ___.",
+"Why did Bunnings put my photo up behind the counter?",
+"Golf would be a lot more popular with ___.",
+"The new Commodore ad: \"Power, style, and ___.\"",
+"Why did Shazza leave Davo?",
+"What do blokes really talk about on the golf course?",
+"My doctor looked at my blood test and asked about ___.",
+"What's going to save the footy club?",
+"One day, my kids will tell their therapist about ___.",
+"The letters page of the local paper is furious about ___.",
+"My personal trainer took one look at me and prescribed ___.",
+"What's really holding this country together?",
+"Ten years of marriage, and we still argue about ___.",
+"Dad's speech at my 21st was mostly about ___.",
+"What's the secret to a good sausage sizzle?",
+"What finally broke the dirt bike club?",
+"The karting track's new safety briefing is entirely about ___.",
+"The pub quiz tiebreaker was a question about ___.",
+"It's not a real Aussie party without ___.",
+"My new podcast is three hours a week about ___.",
+"The doctor gave me six months to live, so I'm spending them on ___.",
+"Why did the RSL cancel the meat raffle?",
+"Why did the cricket get rained off?",
+"I'm not proud of it, but I've been getting really into ___.",
+"Why is the ute making that noise?",
+"Sorry, I can't make it tonight. Something came up involving ___.",
+"Scientists have finally found a cure for ___. It's ___.",
+"___ plus ___ equals a very long night in Emergency.",
+"My two greatest fears are ___ and ___.",
+"Before I die, I want to experience ___ and ___.",
+"In a shocking twist, ___ turned out to be ___ the whole time.",
+"If ___ and ___ had a baby, it'd be the bloke at the end of the bar.",
+"The dirt bike club is split on two issues. One: ___. Two: ___.",
+"___: the cause of, and solution to, ___.",
+"My ideal holiday: ___ in the morning, ___ at night.",
+"Let's be honest: the grown-up version of ___ is ___.",
+"A footy trip is just ___ followed by ___.",
+"Take ___, add extra steps, and you've got ___.",
+"I'd take ___ over ___ any day.",
+"I came for ___, but I stayed for ___.",
+"Step one: ___. Step two: ___. Step three: profit.",
+"Love is ___. Marriage is ___.",
+"Out: ___. In: ___.",
+"Forget ___. These days, I'm all about ___.",
+"Dad's two great loves: ___ and ___.",
+"I went to rehab for ___ and came out hooked on ___.",
+"The person on my right is basically ___ crossed with ___.",
+"*My dating profile just says \"Into ___.\"",
+"*I've never been more turned on than by ___.",
+"*I tried to impress my date with ___, but they were more into ___.",
+"*Nothing kills the mood faster than ___.",
+"*What got me through lockdown?",
+"*Nothing gets a tradie hot and bothered like ___.",
+"*First comes ___, then comes ___, then comes a very awkward breakfast.",
+"*Things got weird in the bedroom when she brought up ___.",
+"*What's the most underrated aphrodisiac?",
+"*Behind closed doors, my tennis club is really about ___.",
+"*What will archaeologists find in my browser history?",
+"*The real reason the honeymoon was cut short: ___.",
+"*My sex life is best described as ___.",
+"*The real reason my marriage ended: ___.",
+"*The proctologist took one look and asked, \"Is this about ___?\"",
+"*My Tinder date got a bit too excited about ___.",
+"*Foreplay, Central Coast style: ___.",
+"*What really happened in the back of the ute?",
+"*Sorry about the noise last night. That was ___.",
+"*The most disappointing night of my life involved ___.",
+"*I've been secretly into ___ for eleven years.",
+"*Things I shouted during sex: \"Yes! Yes! ___!\"",
+"*At 2am in the RSL car park, I'd settle for ___.",
+"*Pick-up line that actually worked: \"Hey, wanna see ___?\"",
+"*The swingers' party in Terrigal was mostly ___.",
+"*My new erotic novel is 400 pages about ___.",
+"*We had to call a locksmith because of ___.",
+"*Dirty talk, but make it Aussie: \"Give me ___, you filthy galah.\"",
+"*I tried to spice things up in the bedroom with ___, and now we sleep in separate rooms.",
+"*My OnlyFans is just ___ for $9.99 a month.",
+"*___ in the streets, ___ in the sheets.",
+"*My sex life used to be ___, but now it's just ___.",
+"*My kink is ___, but only if it involves ___.",
+"*Our anniversary started with ___ and escalated to ___.",
+"*Why was I walking funny on Monday?",
+"*The doctor said, \"In thirty years, I've never seen anything like ___.\"",
+"*What's my ex's new partner got that I haven't?",
+"*The cleaner quit after finding out about ___.",
+"*I had one pinger at the doof and had a vision of ___.",
+"*My dealer has branched out into ___.",
+"*Rehab was going great until someone mentioned ___.",
+"*I'm not an alcoholic. I just need ___ and ___ before breakfast.",
+"*My nan's wild 80th birthday featured ___.",
+"*Golf is a lot like sex: ___ and ___.",
+"*The person on my left's search history is 90% ___.",
+"*Nothing clears the bowels like ___.",
+"*I knew the honeymoon was over when he started talking dirty about ___.",
+"*Hot tip for the bedroom: never underestimate ___.",
+"*My Tinder bio: \"Loves long walks on the beach and ___.\"",
+"*What's the secret to great sex after 50?",
+"*The celebrant walked out halfway through the vows because of ___.",
+"*Honey, we need to talk about ___.",
+"*Why was the caravan rocking?",
+"*My sexual awakening was ___.",
+"*Nothing gets Nan going like ___.",
+"*The chemist's lube aisle now has a whole section devoted to ___.",
+"*Shazza's hens' night got out of hand because of ___.",
+"*Uncle Gary's three ex-wives all blame the divorces on ___.",
+"*My most embarrassing trip to the sexual health clinic involved ___.",
+"*Red flag on a first date: ___.",
+"*Green flag on a first date: ___.",
+"*Why is the hot tub closed?",
+"*Whatever you do, don't mention ___ during sex.",
+"*The walls in this share house are thin, and now everyone knows about ___.",
+"*First date: ___. Second date: ___.",
+"*Forget the gym. These days, I get my cardio from ___."
+];
+  var WHITE_CARDS = [
+"a Bunnings snag with extra onions",
+"the onions falling out of my Bunnings snag",
+"a magpie with a personal vendetta",
+"a lukewarm servo pie at 2am",
+"a mystery meat pie from a servo near Wyong",
+"a thong blowout halfway up the hill",
+"thongs with socks",
+"a Centrelink hold message on a six-hour loop",
+"a brown envelope from Centrelink",
+"a bloke called Shane from Terrigal",
+"a mullet with a rat's tail",
+"a Gosford pub on a Tuesday arvo",
+"shanking a golf ball into the car park",
+"a golf buggy doing burnouts on the 18th green",
+"a hole-in-one that nobody saw",
+"going full throttle into the hay bales",
+"a karting champion with a full racing suit and no friends",
+"a dirt bike with no rego",
+"a dirt bike wheelie straight into a dam",
+"the smell of two-stroke that never leaves",
+"a meat tray nobody claimed",
+"a cask of goon",
+"slapping the goon bag",
+"a ute full of empties",
+"a stubby holder that says 'I'm with stupid'",
+"sunburn in the shape of a singlet",
+"budgie smugglers",
+"a bin chicken that's learned to open the wheelie bin",
+"a bin chicken stealing my chips",
+"a drop bear with a taste for tourists",
+"a huntsman in the car's sun visor",
+"a snake in the dunny",
+"a redback on the toilet seat",
+"the self-checkout yelling 'unexpected item in the bagging area'",
+"an impulse buy from the Aldi middle aisle",
+"a surf lifesaver named Brett",
+"weeing on a jellyfish sting",
+"the pokies at the RSL",
+"a yowie sighting near Bulahdelah",
+"a cane toad with a vape",
+"a kangaroo through the windscreen",
+"a wombat's cube-shaped poo",
+"*a koala with chlamydia",
+"an emu with a grudge",
+"a tradie's bum crack",
+"a council worker leaning on a shovel",
+"a booze bus on the way home from the pub",
+"an esky full of prawns left in the sun",
+"a backyard cricket game that ended in an ambulance",
+"Uncle Gary's homebrew",
+"Uncle Gary's opinions",
+"a pelican with a chip on its shoulder",
+"a Woy Woy local with a boat named 'Liquid Asset'",
+"servo sushi",
+"a servo hot dog that's been spinning since 2019",
+"a sunburnt bloke in the pub pool",
+"a footy trip to the Gold Coast",
+"the footy trip that nobody talks about",
+"a sausage roll the size of my forearm",
+"a Southern Cross tattoo",
+"doing a shoey with a sweaty thong",
+"saying 'yeah, nah' to everything",
+"calling everyone 'mate' because I forgot their names",
+"a blue heeler who's smarter than me",
+"a golf ball in a magpie's nest",
+"an angry rooster at 4am",
+"a haunted Corolla",
+"my ex's mum",
+"a tattoo of my ex's name",
+"a motivational speaker crying in the car park",
+"a pyramid scheme selling essential oils",
+"a crypto bro explaining the blockchain",
+"a nine-minute voice note",
+"a drunk text to my boss",
+"a typo in my eulogy",
+"an inheritance of one thousand ceramic frogs",
+"a cursed garage sale doll",
+"a sentient robot vacuum",
+"Siri mishearing absolutely everything",
+"diarrhoea on a long-haul flight",
+"a floater that won't flush",
+"silently passing wind on a packed train",
+"the smell in the car after the drive-through",
+"a wet fart",
+"an aggressively moist sandwich",
+"someone who mentions their marathon every five minutes",
+"a podcast hosted by two blokes with opinions",
+"an emotional support ferret",
+"my neighbour's leaf blower at 7am",
+"dad jokes at a funeral",
+"a mime having a panic attack",
+"eye contact at the urinal",
+"a dunny with no paper",
+"a hangover that lasts three days",
+"terrible decisions fuelled by tequila",
+"a kebab at 3am",
+"a man in Speedos at the shopping centre",
+"the worst wedding speech in history",
+"a best man with no filter",
+"*a hens' night with novelty straws",
+"a bucks' party at a wildlife park",
+"a landlord who 'doesn't do repairs'",
+"a flatmate who labels his milk",
+"a flatmate who uses my toothbrush",
+"a sourdough starter named Kevin",
+"a Zoom meeting with the camera accidentally on",
+"*the photocopier at the work Christmas party",
+"an HR complaint with my name on it",
+"a corporate retreat at a paintball park",
+"dropping my phone in the dunny",
+"my browser history",
+"*incognito mode",
+"*a suspiciously sticky remote",
+"*a suspiciously damp beanbag",
+"a seagull stealing a whole pie",
+"a goose with a knife",
+"a ghost who just wants to chat",
+"a séance gone horribly wrong",
+"a cult with really good snacks",
+"joining a cult for the free merch",
+"a flat-earther with a podcast",
+"conspiracy theories at Christmas lunch",
+"a chain email from Nan",
+"a man explaining something I already know",
+"a gender reveal cake that exploded",
+"my second wife's lawyer",
+"a prenup written on a napkin",
+"a wedding in the Bunnings car park",
+"an engagement ring found in a meat pie",
+"a footy big-screen proposal that went badly",
+"a dolphin tattoo on my lower back",
+"not wearing pants on a Zoom call",
+"*a nudist beach",
+"*skinny-dipping at the work Christmas party",
+"*a boner at the worst possible moment",
+"*morning glory",
+"*a G-string at the beach",
+"*going commando",
+"*a sausage that's seen better days",
+"*awkward small talk after sex",
+"*a sex position named after a Bunnings power tool",
+"*the walk of shame through a servo at 7am",
+"*a hickey at a job interview",
+"*a sex dungeon in the shed",
+"*handcuffs with no key",
+"*a crotchless onesie",
+"a spray tan that's gone orange",
+"*swamp crotch",
+"chafing after a round of golf",
+"a dirt bike seat after six hours",
+"a porta-loo tipped over at Bathurst",
+"a porta-loo at a music festival",
+"a doof in the bush",
+"a rave in a cow paddock",
+"a pimple on my wedding day",
+"a mysterious rash",
+"*a rash in an awkward place",
+"*a prostate exam",
+"*a sponge bath from a nurse named Bruce",
+"a hernia from lifting a slab",
+"a beer gut with its own postcode",
+"a bloke who calls himself 'a legend'",
+"*a man in a mankini",
+"*nipple tassels",
+"*a strip-o-gram at the wrong address",
+"*Nan's pole-dancing class",
+"*a lap dance from a stranger in a koala suit",
+"a cosplay that went way too far",
+"Mum's book club that's really just wine",
+"a cheeky Tuesday cask",
+"a 'quiet one' that ended at 4am",
+"a pub crawl that only made it to one pub",
+"*a hammock that wasn't built for two",
+"*a happy ending at the car wash",
+"*a condom that's been in my wallet since 2009",
+"*a vasectomy",
+"*a sext to the wrong person",
+"*an unsolicited photo",
+"*nudes in the family group chat",
+"*a body pillow with a face on it",
+"*a blow-up doll named Sharon",
+"a bare bum at the window",
+"mooning the Manly ferry",
+"a streaker at the cricket",
+"a stage-five clinger",
+"my ex's objectively hotter new partner",
+"stalking my ex on Instagram",
+"a first date at Bunnings",
+"a first date that ended at the vet",
+"being ghosted by an actual ghost",
+"*a sugar daddy",
+"*a cougar at the RSL",
+"*a silver fox at the bowls club",
+"a pensioner blasting heavy metal through a hearing aid",
+"a mobility scooter drag race",
+"a nursing home rave",
+"an open-casket selfie",
+"a funeral with a board shorts dress code",
+"being buried with my phone",
+"cremation by barbecue",
+"something rattling in the boot",
+"whatever's buried under the Hills Hoist",
+"a nan who swears like a sailor",
+"a flock of galahs at the servo",
+"a lorikeet drunk on fermented fruit",
+"a possum fight at 2am",
+"*a hot tub full of strangers",
+"a Band-Aid floating in the public pool",
+"a Band-Aid in my pie",
+"the sausage that fell on the ground",
+"mystery Tupperware from the back of the fridge",
+"a lasagne with a secret",
+"explosive diarrhoea at a wedding",
+"a toilet at my date's place that won't flush",
+"a stranger's sweaty armpit on the train",
+"a parking inspector named Denise",
+"road rage in the Woolies car park",
+"a tailgater in a lifted ute",
+"*truck nuts",
+"a car air freshener that smells like regret",
+"a cheap tattoo from a Bali street stall",
+"Bali belly",
+"norovirus on a cruise",
+"a parrot that knows my PIN",
+"a camping trip with no toilet paper",
+"a tent that collapses at 2am",
+"a leech in my sock",
+"a backyard fireworks accident",
+"a DIY workshop gone horribly wrong",
+"a whipper snipper to the shins",
+"a chainsaw at a picnic",
+"a nail gun and a dream",
+"*a power drill with a suspicious attachment",
+"a treadmill I paid $3,000 for",
+"a step counter on a dog",
+"a fart in yoga class",
+"a meditation app that yells at me",
+"the heat death of the universe",
+"a tax refund I've already spent",
+"smashed avo instead of a house deposit",
+"a real estate agent's smile",
+"an 'open-plan' shoebox",
+"a granny flat with no granny",
+"screaming into the void",
+"an existential crisis in the cereal aisle",
+"a yoghurt that's been in the work fridge since March",
+"a sick day at the beach",
+"a doctor's certificate from a dodgy GP",
+"a GP who just says 'drink more water'",
+"googling my symptoms at 2am",
+"a bin full of prawn heads in January",
+"a neighbourhood Facebook group feud",
+"a petition to bring back the old roundabout",
+"a Bunnings employee who knows too much",
+"the power of the red apron",
+"Dad's 'shortcut'",
+"Nan's secret recipe that's just store-bought",
+"three energy drinks and a karting helmet",
+"a B&S ball",
+"a swag that smells like a goat",
+"the office Melbourne Cup sweep",
+"a race day chunder",
+"a Sydneysider talking about property prices",
+"a Kiwi claiming the pavlova",
+"Christmas lunch in 40-degree heat",
+"a Boxing Day sale stampede",
+"a bloke yelling at the cricket on the telly",
+"a bloke named Dazza",
+"a woman named Bev who takes no nonsense",
+"a sausage sizzle fundraiser for a sausage sizzle",
+"a Chiko Roll",
+"dim sims from the fish and chip shop",
+"potato scallops",
+"the chicken salt shortage",
+"a parma the size of a hubcap",
+"a schnitty and a schooner",
+"a pub with no beer",
+"a nightclub bouncer who hates fun",
+"the last sausage roll in the pie warmer",
+"an ibis with a limp",
+"a roo that knows kung fu",
+"a Tough Mudder for people who hate themselves",
+"a jet ski with no brakes",
+"a speedboat named 'Reel Estate'",
+"bait in the beer fridge",
+"a bucket of prawns and a bucket of regret",
+"a rip that dragged me to the next beach",
+"sand in places sand shouldn't be",
+"a shark net full of thongs",
+"the bloke who brings a guitar to the party",
+"a bonfire on the beach that got out of hand",
+"a cheeky dart behind the shed",
+"*a cheeky spank",
+"*a sexy pirate costume",
+"*a dad bod in a G-string",
+"*a leopard-print thong of the non-foot variety",
+"*a pash at the bus stop",
+"*a romantic bath with way too many bath bombs",
+"*an extra-long 'goodnight'",
+"*a cold shower after the barbie",
+"*fifty shades of Bunnings",
+"*a spicy massage oil",
+"*a waterbed with a slow leak",
+"*a bedroom mirror on the ceiling",
+"*a raunchy romance novel with a lifesaver on the cover",
+"*a lusty glance across the meat raffle",
+"*the hot neighbour mowing shirtless",
+"*a tradie in tight stubbies",
+"*a calendar of shirtless firies",
+"*a hens' party on a party bus",
+"*a rubber chicken in the bedroom",
+"*a very loud headboard",
+"*a sock on the door handle",
+"*a bra on the ceiling fan",
+"*a wedding night disaster",
+"*a frisky afternoon in the caravan",
+"*the back seat of a Commodore",
+"*a wardrobe malfunction",
+"*a magic mushroom tea party",
+"*a stripper pole in the granny flat",
+"*a suspiciously well-worn yoga mat",
+"*a stack of dodgy magazines under the caravan mattress",
+"*a bedroom playlist that's all bagpipes",
+"*a tickle fight that went too far",
+"*an adult toy shop loyalty card",
+"*a vibrating phone in the wrong pocket",
+"*getting frisky in a tent at a doof",
+"*a 'massage' from a mate",
+"*a love seat with a sticky secret",
+"a mime at a funeral",
+"a magician who can't find the rabbit",
+"a ventriloquist dummy with a dark past",
+"a clown car full of accountants",
+"my therapist's therapist",
+"crying at an ad about insurance",
+"a bloke crying at the footy",
+"an emotional breakdown at the self-checkout",
+"a TED Talk from my uncle",
+"my 5am routine",
+"a bloke who's really into ice baths",
+"a guy who says 'let's circle back'",
+"a pickleball cult",
+"a golf buggy stuck on the clubhouse roof",
+"a golf ball to the club captain's head",
+"a club pro who's been drinking since nine",
+"a golf buggy with a built-in bar fridge",
+"a putter thrown into the lake",
+"a fake golf tan",
+"karting in a hailstorm",
+"a karting crash that made the local paper",
+"a karting grudge match at a kid's birthday party",
+"a dirt bike engine at 6am",
+"a mud-covered dirt bike in the lounge room",
+"a broken collarbone from a jump nobody filmed",
+"a doctor with very cold hands",
+"a nurse who's seen it all",
+"a bloke with a stubby in each hand",
+"a Mr Whippy van in a high-speed chase",
+"a koala that bites",
+"a wombat that charges",
+"a kookaburra laughing at my life choices",
+"a crow that knows my face",
+"a magpie who's actually lovely",
+"the feeling of victory after a successful Bunnings run",
+"a how-to-vote card used as a napkin",
+"a democracy sausage",
+"a candidate with a very punchable face",
+"a politician eating a pie with a knife and fork",
+"a road trip with no air con",
+"the servo at the edge of the earth",
+"the world's largest pie",
+"a pie floater",
+"a sausage sizzle at the end of the universe",
+"an aggressively Australian accent",
+"a British backpacker complaining about the heat",
+"a backpacker who never left",
+"a working holiday that turned into a career",
+"a time traveller from 1988",
+"an AI that only writes poems about prawns",
+"a deepfake of my nan",
+"a mysterious lump in the couch",
+"a couch from the side of the road",
+"a cat's hairball in my shoe",
+"a box of kittens at a job interview",
+"the Bunnings sausage sizzle volunteer's thousand-yard stare",
+"a sausage that's been on the barbie since Tuesday",
+"*a dildo wearing an Akubra",
+"*a strap-on with a hi-vis vest",
+"*doggy style on a trampoline",
+"*the reverse cowgirl in a Commodore",
+"*accidentally FaceTiming Nan mid-shag",
+"*a shag in the Bunnings car park",
+"*a quickie in a porta-loo at the footy",
+"*a one-night stand who stole my ute",
+"*missionary with the lights off and the footy on",
+"*a bloke who finishes in nine seconds",
+"*whiskey dick",
+"*a pube in my servo pie",
+"*a pube on the soap",
+"*shaving my balls with a whipper snipper",
+"*waxing my crack before the wedding",
+"*a Brazilian from a dodgy salon in Gosford",
+"*a penis pump from Marketplace",
+"*a second-hand sex swing",
+"*a sex swing installed by a tradie who wouldn't stop talking",
+"*a Fleshlight full of sand",
+"*edible undies made of Vegemite",
+"*nipple clamps from the Bunnings tool aisle",
+"*an anal bead left behind at a mate's place",
+"*a butt plug through airport security",
+"*a butt plug shaped like the Big Banana",
+"*a cock ring stuck on the wrong thing",
+"*a dick pic with a thumb in it",
+"*a dick pic with the Bunnings logo in the background",
+"*a sexy selfie with Mum clearly visible in the mirror",
+"*a nude with Nan's doilies in the background",
+"*a lovebite shaped like Tasmania",
+"*getting caught wanking by the Woolies delivery guy",
+"*a crunchy wank sock",
+"*morning sex with dragon breath",
+"*sex noises in a share house with paper-thin walls",
+"*an orgy at the bowls club",
+"*role-playing as a Centrelink caseworker",
+"*moaning 'Oi, oi, oi' at the wrong moment",
+"*sexting through autocorrect",
+"*getting the clap at the RSL",
+"*crabs from the caravan park",
+"*a thrush flare-up at the races",
+"*a sex tape filmed on a Nokia",
+"*a sex tape accidentally filmed on the dirt bike GoPro",
+"*a threesome where two people fell asleep",
+"*a foursome that turned into a card game",
+"*the key bowl at a Woy Woy swingers' party",
+"*a married couple who 'do yoga' together",
+"*a hot Pilates instructor named Jett",
+"*a tradie's tool belt and absolutely nothing else",
+"*foreplay that lasts exactly one ad break",
+"*a 'you up?' text at 3am",
+"*a booty call during State of Origin",
+"*dry humping on the RSL dance floor",
+"*a lap dance from a bloke named Gazza",
+"*a stripper who's also my accountant",
+"*a strip club loyalty card with one stamp left",
+"*a bucks' night stripper dressed as a magpie",
+"*a punctured blow-up doll",
+"*a 4am boner poking me in the back",
+"*blue balls",
+"*a vasectomy done at a Bunnings DIY workshop",
+"*a suspiciously girthy zucchini from the community garden",
+"*an eggplant emoji to the family group chat",
+"*a peach emoji to my boss",
+"*a queef in yoga class",
+"*a queef during the eulogy",
+"*69ing in a single bed",
+"*sex on an actual beach",
+"*sand in my foreskin",
+"*a hand job under the bingo table",
+"*a handy in a go-kart",
+"*the walk of shame in one thong",
+"*a sloppy pash on the Manly ferry",
+"*being horny",
+"*a ruler and a lot of disappointment",
+"*a micro-penis and a massive ute",
+"*a lifted ute that's definitely compensating for something",
+"*a vibrator that sounds like a two-stroke",
+"*a Fleshlight in the glovebox",
+"*hearing my parents bonk through the wall",
+"*Dad's Viagra in a Tic Tac container",
+"*a four-hour erection at a funeral",
+"*a porn mo",
+"*a porn history that's all 'tradie fixes pipes'",
+"*a plumber who actually just fixed the pipes",
+"*a bloke who calls his penis 'the Commodore'",
+"*naming my vagina 'The Entrance'",
+"*a prostate massage from my golf buddy",
+"*pegging with an actual clothes peg",
+"*a gimp in the shed",
+"*a gimp suit drying on the Hills Hoist",
+"*accidentally sexting my Centrelink caseworker",
+"*a sugar mummy with a jet ski",
+"*a silver-haired GILF at aqua aerobics",
+"*a horny widow at the meat raffle",
+"*a cucumber with teeth marks",
+"*lube made from servo pie gravy",
+"*a jar of Vaseline",
+"*a skinny-dip that cleared out the caravan park pool",
+"*a used condom on the 18th green",
+"*my body count",
+"*Nan's Tinder profile",
+"*Nan's 34-year-old new boyfriend",
+"*Pop's porn stash in the shed",
+"*Dad's new girlfriend who's younger than me",
+"*a hot dad at the Bunnings checkout",
+"*a back, sack and crack from a nervous trainee",
+"*a nine-iron to the nuts",
+"*the golf pro who's sleeping with half the club",
+"*a nudie run on the footy oval",
+"*a nudie run through the RSL bistro",
+"*Mad Monday in a mankini",
+"*a stripper at Mad Monday who knew everyone's mum",
+"*a ute bonnet covered in nang canisters",
+"*an alien probe with no foreplay",
+"*the person on my left's mum",
+"*the person on my right's sex face",
+"*the person across from me in the nude",
+"*the Card Czar's browser history",
+"*a Bunnings snag eaten in a seductive manner",
+"*a gram of mystery powder from the doof",
+"*a bloke who's 'only had one pinger'",
+"*a K-hole in the Woolies car park",
+"*microdosing mushrooms at the bowls club",
+"*a bong made from a Bunnings garden hose",
+"*a bucket bong in the shed",
+"*a bong hidden in Nan's teapot",
+"*Nan's 'medicinal' brownies",
+"*a spliff the size of a Chiko Roll",
+"*a nang at a 40th birthday party",
+"*a drug dog at the music festival",
+"*swallowing the whole bag when I saw the drug dog",
+"*a bloke at the doof with a jaw like a cement mixer",
+"*a line off the top of a golf buggy",
+"*cocaine on a Tuesday",
+"*a three-day bender at the RSL",
+"*accidentally snorting Grandpa's ashes",
+"*being found dead in a Bunnings trolley",
+"*an open casket and a closed bar",
+"*a turd in the RSL pool",
+"*a hangover poo that registered on the Richter scale",
+"*a sneaky shit at the in-laws'",
+"*a skid mark on the work toilet seat",
+"*a shart on the dirt bike",
+"*a shart at the golf presentation night",
+"*a jar of piss in the ute",
+"*a bush that needs a whipper snipper",
+"*swamp arse after karting",
+"*mud in my undies after a trail ride",
+"*a kebab in my undies",
+"*the dog's anal glands",
+"*a shit in the shower",
+"a poo that touched the water before I'd finished sitting down",
+"the servo toilet on a Sunday morning",
+"a fart that followed me into the lift",
+"a servo-pie fart that peeled the paint",
+"a fart that cleared the 18th hole",
+"pissing into the wind on the 14th hole",
+"pissing in a Gatorade bottle on the M1",
+"spewing in my own hat",
+"spewing off the Manly ferry",
+"a tactical chunder",
+"a nosebleed into the pavlova",
+"a toenail in the trifle",
+"a pimple that popped onto the mirror",
+"a cyst with its own heartbeat",
+"a boil with its own Instagram",
+"an ingrown hair the size of a cocktail sausage",
+"ball sweat",
+"a back-sweat Rorschach test",
+"dried snot on the steering wheel",
+"eating my own scab",
+"a bogey flick that landed in Nan's tea",
+"burping the national anthem",
+"a burp that tasted like yesterday's kebab",
+"a cotton bud with earwax the size of a marshmallow",
+"colonoscopy prep on a long drive",
+"Dad's gallstones in a jar",
+"Dad's toenail collection",
+"a hairy back poking out of a hi-vis",
+"the fourth beer at 9am",
+"waking up at the Woy Woy bus terminus",
+"a hangover that started in 2017",
+"waking up next to a half-eaten kebab",
+"crying into a servo pie at 4am",
+"a 4am heart-to-heart with the servo attendant",
+"a schooner of goon",
+"using a goon bag as a pillow at a B&S ball",
+"drinking a slab and calling it hydration",
+"the breathalyser's sad little beep",
+"drunk-texting my ex's mum",
+"drunk-buying a jet ski online",
+"drunk-buying a horse named Regret",
+"falling asleep in the RSL toilets",
+"being carried out of the RSL in a wheelie bin",
+"the footy club treasurer doing a runner with the kitty",
+"footy trip photos deleted by group vote",
+"the 19th hole lasting nine hours",
+"tequila shots off a bin chicken",
+"a Jägerbomb before work",
+"a pre-mixed bourbon can at 9am",
+"an RSL-sponsored funeral",
+"dying alone with a meat tray",
+"my ashes being sold as fertiliser at Bunnings",
+"a will that just says 'Sorry'",
+"a eulogy that was just a list of my debts",
+"the slow realisation that this is it",
+"being officially middle-aged",
+"my parents' disappointment",
+"my parents' marriage",
+"my divorce lawyer's new yacht",
+"my therapist's face when I said 'Anyway'",
+"a quarter-life crisis",
+"a midlife-crisis jet ski",
+"crying in the Bunnings car park",
+"eating dinner over the sink",
+"eating Easter eggs alone in the dark",
+"a solo birthday at the pokies",
+"my credit card statement",
+"a credit score of 12",
+"a pokies addiction that's 'just a hobby'",
+"a payday loan for a ride-on mower",
+"no plan B",
+"Nan's ashes in a Tupperware container",
+"an empty inbox and an even emptier soul",
+"the crushing weight of adulthood",
+"knowing I'll die with a HECS debt",
+"the sweet release of death",
+"the slow death of my liver",
+"a cemetery plot with water views at The Entrance",
+"the person on my left",
+"the person on my left's last relationship",
+"the person on my left's haircut",
+"the person on my right's ex",
+"whoever's holding this phone",
+"everyone at this party",
+"the person who suggested this game",
+"the person on my left's tragic dating history",
+"the person on my right's laugh",
+"whoever's been to the toilet five times tonight",
+"the host's dodgy dips",
+"the host's bathroom",
+"the person on my left's Facebook poetry",
+"the person on my left's ute",
+"whoever hasn't won a round yet",
+"the Card Czar's terrible taste",
+"my personality",
+"my Spotify Wrapped",
+"my therapist's notes about me",
+"Mum's disappointed sigh",
+"my dating profile's 'fun fact'",
+"my one good shirt",
+"my best mate's pity",
+"a résumé that's mostly lies",
+"a 38-year-old living in Mum's granny flat",
+"moving back in with Mum at 40",
+"a dad bod made entirely of Chiko Rolls",
+"being 35 and 'between jobs'",
+"my 'career in crypto'",
+"emotional baggage with its own baggage carousel",
+"a bloke who peaked at the 2009 Bunnings Christmas party",
+"a 45-year-old who still talks about Schoolies",
+"a Commodore with 'BOGAN1' plates",
+"a tramp stamp of the Holden logo",
+"an 'Aussie Pride' tattoo with a typo",
+"a mullet that's been through two divorces",
+"a flannelette shirt at a wedding",
+"a bloke named Davo who owes everyone money",
+"a woman named Shazza with knuckle tattoos",
+"Shazza's third husband",
+"Gazza's ute",
+"Davo's ankle monitor",
+"a bowls club wedding with a meat-tray bouquet",
+"a meat tray as an anniversary present",
+"a meat raffle that turned into a brawl",
+"a brawl at the leagues club",
+"drunk pelicans at The Entrance",
+"a pelican with a gambling problem",
+"The Entrance on a Saturday night",
+"Gosford station at 11pm",
+"a Woy Woy pensioner doing 50 on a mobility scooter",
+"a Wyong servo at 3am",
+"a food court fight at Tuggerah",
+"the M1 on a long weekend",
+"the Central Coast's only nightclub",
+"a Toukley bowlo raffle",
+"a car park fight at Erina Fair",
+"a Terrigal yuppie on a $9,000 e-bike",
+"a Budgewoi caravan park feud",
+"a Centrelink caseworker named Trish who hates me",
+"Centrelink hold music that's just Trish laughing",
+"a Centrelink payment spent entirely at the TAB",
+"a mutual obligation report that just says 'drank'",
+"a job interview at Bunnings in thongs",
+"a Bunnings snag served on a bare hand",
+"a sausage sizzle volunteer with a nasty cough",
+"burnt onions and a broken dream",
+"the Click & Collect queue of shame",
+"a Bunnings employee who's seen me cry three times",
+"a servo pie that's 60% gristle and 40% regret",
+"a servo pie made of unclaimed raffle meat",
+"a 4am servo sausage roll that changed my life",
+"the servo toilet key on a broom handle",
+"the servo attendant who knows all my secrets",
+"an RSL pokie named 'Lucky Lady's Revenge'",
+"an RSL pokie that ate my rent",
+"a rigged RSL raffle drum",
+"the RSL's $12 seafood basket",
+"an RSL schnitzel bigger than my will to live",
+"a bloke at the RSL who swears he played first grade",
+"a magpie that's remembered my face since 2014",
+"a magpie that went straight for the eyes",
+"a magpie wearing a GoPro",
+"the cable ties on my helmet that did absolutely nothing",
+"a magpie divorce",
+"a bin chicken in a wedding dress",
+"a bin chicken with a kebab and a bad attitude",
+"a buff kangaroo who wants to fight",
+"koalas fighting at 2am like it's a murder scene",
+"a drop bear named Darren",
+"a funnel-web in my thong",
+"a brown snake in the Bunnings garden centre",
+"a goanna up my leg",
+"a bloke who calls everyone 'champ'",
+"an esky used as a seat, a table, and a coffin",
+"a servo flat white with ash in it",
+"a tinnie with no bung",
+"a B&S ball hangover in a swag",
+"a B&S ball where someone drank from the cow trough",
+"a slab of beer as an engagement ring",
+"a carton of beer as legal currency",
+"Uncle Gary's Southern Cross budgie smugglers",
+"a golf ball through my mate's ute window",
+"shooting 14 over par at mini golf",
+"golf shoes with the spikes on the inside",
+"a hole-in-one celebration in the clubhouse toilets",
+"a golf swing that looks like a medical emergency",
+"a golf buggy DUI",
+"rolling the golf buggy into the dam with my father-in-law in it",
+"a caddie who openly laughs at me",
+"an air swing in front of the club captain",
+"the 19th hole bar tab",
+"karting with a hangover",
+"crying after a go-kart crash in front of strangers",
+"a go-kart with a dodgy steering wheel and a dodgier owner",
+"a karting helmet that smells like someone else's head",
+"a karting rivalry with a 60-year-old named Pam",
+"getting lapped by a hens' party",
+"getting lapped by Nan",
+"ignoring the 'no ramming' sign at the karting track",
+"a dirt bike through the neighbour's chook pen",
+"a dirt bike jump over a burning esky",
+"a dirt bike that's louder than my marriage",
+"a dirt bike with a sidecar for my dog",
+"a dirt bike backflip that ended in Gosford Hospital",
+"a collarbone held together with cable ties",
+"motocross boots that never dry",
+"racing pit bikes through the RSL car park",
+"the trail where I lost my front teeth",
+"a seagull who's also a hostage negotiator",
+"a sentient meat pie",
+"a meat pie that knows what I did",
+"a ghost who only haunts servo toilets",
+"a time-travelling bin chicken",
+"a cult that worships the Big Banana",
+"the Big Banana",
+"three possums in a trench coat",
+"God turning out to be a bloke from Toukley",
+"the devil working a shift at Centrelink",
+"Satan's accountant",
+"a wizard who only does tax returns",
+"a CEO who's secretly a goat",
+"a dolphin with a mortgage",
+"a haunted Hills Hoist that spins at midnight",
+"a portal to hell in the Bunnings garden centre",
+"a mermaid with a broad Aussie accent",
+"an alien abduction where they only took my thongs",
+"a UFO hovering over the leagues club",
+"a giant crab that just wants a hug",
+"a clone of me who's more successful",
+"a body double who goes to family Christmas for me",
+"a moon made entirely of servo pie",
+"a dinosaur with a Centrelink appointment",
+"a possum who's a better parent than me",
+"a tree that owes me money",
+"an emu running for council",
+"an emu with a nine-iron",
+"an Airbnb with a strict 'no farting' rule",
+"a group chat called 'Never Again'",
+"a team-building day at a Bunnings DIY workshop",
+"a wedding speech that mentions the ex",
+"the father of the bride's 45-slide PowerPoint",
+"an uncle who brings his own karaoke machine",
+"an engagement ring made from a ring pull",
+"a gender reveal at the bowlo that set off the sprinklers",
+"wedding vows written on a Bunnings receipt",
+"a couple whose dog is their whole personality",
+"a bloke who says 'I'm not like other blokes'",
+"a bloke who still has his P-plates at 45",
+"Nan's ex from the bowls club",
+"Pop's completely made-up war stories",
+"a family Christmas where someone got arrested",
+"Uncle Gary calling the cops on himself",
+"a dad who tells everyone how much he paid for the barbie",
+"a divorced dad's barbecue with nine kinds of sauce",
+"a divorced dad's ute",
+"a bloke who takes a Bluetooth speaker to the toilet",
+"a bidet set to 'fire hose'",
+"a spray tan that only covered one side",
+"a roo that's moved into the granny flat",
+"a wet dog in the ute's front seat",
+"a bloke who's 'just popping out for a dart' for three hours",
+"*a sext that just says 'Bunnings' and a winky face",
+"*a kinky Bunnings date in the rope aisle",
+"*cable ties used for something other than the magpies",
+"*a tradie who's 'happy to have a look at that for you'",
+"*a ute tray that has seen things",
+"*a romantic weekend at a Budgewoi caravan park",
+"*a hickey from the person on my left",
+"*being the person on my left's rebound",
+"*the three subscribers to the person on my right's OnlyFans",
+"*a sex toy that needs Bunnings batteries",
+"*an orgasm that scared the dog",
+"*a moan that set off the car alarm",
+"*a safe word that's just 'Gosford'",
+"*a fetish for hi-vis",
+"*a lingerie set from the Aldi middle aisle",
+"*a wedgie from a G-string at the golf club",
+"*a nipple slip at the bowlo",
+"*getting a lap dance from the person on my left",
+"*a marriage counsellor who keeps recommending a sex swing",
+"*a thong tan on a bare bum",
+"*a 'full body' massage at the servo",
+"*the kind of sweaty you only get from a Commodore's vinyl seats",
+"*a bucks' party where the groom got lost",
+"*the bride's sister and the best man in the coat room",
+"*a three-way at the RSL that was just a group hug",
+"*phone sex with a bad signal in Wyong",
+"*making love to a meat tray",
+"*a dirty weekend that was actually just dirt bikes",
+"*a quickie in the karting pit lane",
+"*a nine-iron in the pocket that is definitely not for golf",
+"*a cheeky tug in the servo toilets",
+"*a Viagra mix-up at the nursing home",
+"*my uncle's 'massage oil' business",
+"*a sex shop gift voucher from my nan",
+"*a strap-on forgotten in the Uber",
+"*the morning-after pill and a servo pie",
+"*a ketamine-fuelled game of lawn bowls",
+"*a pinger that turned out to be a Panadol",
+"*drinking a bottle of Bundy and fighting a cassowary",
+"*a goon-fuelled ride on a Hills Hoist",
+"*a hangover so bad that God looked disappointed",
+"*a breakfast beer that turned into a breakfast bender",
+"*accidentally attending my own wake",
+"*a death certificate that says 'misadventure at Bunnings'",
+"*my body being found by a magpie",
+"*the coroner laughing",
+"*a will that leaves everything to the RSL pokies",
+"*a coffin made from old Commodore panels",
+"*an autopsy that found 40 Chiko Rolls",
+"a 50-metre spew off the Gosford wharf",
+"a wet sneeze straight into the servo pie warmer",
+"the smell of the karting track porta-loo in January",
+"skidding on someone's chunder at the bus stop",
+"a dog licking my hangover spew",
+"a nipple chafed raw on a fun run",
+"the post-golf toilet sprint",
+"a seagull in a tiny hi-vis vest",
+"a fart so loud the magpies stopped swooping",
+"a stubbed toe at 3am",
+"a burp so big it had its own weather",
+"Dad's morning cough",
+"an armpit that smells like hot chips",
+"a foot fungus that's applied for citizenship",
+"a mozzie bite on the eyelid",
+"peeing on an electric fence",
+"falling off the toilet at a funeral",
+"a nosebleed during a job interview",
+"a Bunnings snag eaten off the car park bitumen",
+"a twelve-hour Centrelink queue in a body cast",
+"a Centrelink debt that's become sentient",
+"a Centrelink letter that just says 'LOL'",
+"a Mad Monday that lasted until Thursday",
+"a footy trip to Bali that ended with a court date",
+"a footy trip where the bus driver joined in",
+"the footy club's Best and Fairest award going to the keg",
+"a bogan baptism in a goon bag",
+"a mullet so long it has a mortgage",
+"a bogan in a Bintang singlet at a funeral",
+"a Commodore doing donuts at a wedding",
+"the bottle-o drive-through attendant who's my emergency contact",
+"a twelve-pack and a single tear",
+"the meat tray of destiny at The Entrance Leagues Club",
+"a Gosford bin chicken who's seen my worst moments",
+"a Long Jetty pub with one functioning toilet",
+"a Terrigal sunset ruined by a bloke in Speedos",
+"an Umina Beach dad wearing wraparound sunnies indoors",
+"a Woy Woy bloke selling oysters out of his boot",
+"a Bateau Bay brawl over the last pie",
+"the Wyong Races in leopard print",
+"the Gosford Leagues Club carpet after a 21st",
+"a Bunnings sausage that's been sweating on the hotplate all day",
+"the onion fight at the sausage sizzle",
+"the Bunnings ute hire with a body in the back",
+"the Bunnings garden centre's emotional support cactus",
+"a servo pie warmer that doubles as a sauna",
+"a servo attendant who can smell fear",
+"a servo slushie in a Commodore cupholder",
+"the RSL member who's been on the same pokie since 1997",
+"the RSL bingo caller who's had six schooners",
+"an RSL Anzac biscuit that broke my tooth",
+"a magpie with a restraining order against me",
+"a magpie that swooped my coffin",
+"a karting champion who's 11 years sober",
+"a go-kart named The Widowmaker",
+"a golf buddy who cheats on his scorecard and his wife",
+"a golf ball that bounced off the clubhouse into the bistro",
+"a dirt bike that's been in more fights than me",
+"a sock full of sand and a grudge",
+"a recycling bin full of empty Bundy cans and broken dreams",
+"*Jeremy's tight foreskin"
+];
+
+  var HAND_SIZE = 10;
+  var BOT_NAME = 'Rando';
+  var BOT_NAMES = ['Bot Bazza', 'Bot Shazza', 'Bot Davo', 'Bot Kylie', 'Bot Macca', 'Bot Trev'];
+  var MAX_BOTS = BOT_NAMES.length;
+  var BOT_THINK_MS = 1500;
+  var KEY_SETTINGS = 'cas.settings.v1';
+  var KEY_GAME = 'cas.game.v1';
+
+  // ---------- safe storage (iOS file preview may throw on any access) ----------
+  var store = {
+    get: function (k) {
+      try { var ls = window.localStorage; if (!ls) return null; var v = ls.getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; }
+    },
+    set: function (k, v) {
+      try { var ls = window.localStorage; if (ls) ls.setItem(k, JSON.stringify(v)); } catch (e) { /* ignore */ }
+    },
+    del: function (k) {
+      try { var ls = window.localStorage; if (ls) ls.removeItem(k); } catch (e) { /* ignore */ }
+    }
+  };
+
+  // ---------- RNG (optional #seed=N for reproducible testing) ----------
+  var rand = Math.random;
+  try {
+    var sm = /seed=(\d+)/.exec(String(window.location.hash || ''));
+    if (sm) {
+      var seed = (parseInt(sm[1], 10) >>> 0) || 1;
+      rand = function () {
+        seed = (seed + 0x6D2B79F5) >>> 0;
+        var t = seed;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+  } catch (e) { /* ignore */ }
+  function shuffle(a) {
+    a = a.slice();
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(rand() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+
+  // ---------- cards ----------
+  function parse(list, prefix) {
+    return list.map(function (s, i) {
+      var spicy = s.charAt(0) === '*';
+      var text = spicy ? s.slice(1) : s;
+      var blanks = (text.match(/___/g) || []).length;
+      return { id: prefix + i, text: text, spicy: spicy, blanks: blanks, pick: Math.max(1, blanks) };
+    });
+  }
+  var BLACK = parse(BLACK_CARDS, 'b');
+  var WHITE = parse(WHITE_CARDS, 'w');
+  var BY_ID = {};
+  BLACK.concat(WHITE).forEach(function (c) { BY_ID[c.id] = c; });
+  function card(id) { return BY_ID[id]; }
+
+  // ---------- text helpers ----------
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
+  }
+  function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+  function whiteDisplay(t) { t = cap(t); return /[.!?]["\u201d]?$/.test(t) ? t : t + '.'; }
+  // Build a filled-in sentence. answers: array of white texts (may be shorter than blanks).
+  function fillHTML(black, answers) {
+    var t = black.text;
+    if (black.blanks === 0) {
+      var a0 = answers[0];
+      return esc(t) + ' ' + (a0 == null ? '<span class="blank"></span>' : '<span class="ans">' + esc(whiteDisplay(a0)) + '</span>');
+    }
+    var parts = t.split('___');
+    var out = '', plain = '';
+    for (var k = 0; k < parts.length; k++) {
+      var seg = parts[k];
+      if (k > 0) {
+        var prev = answers[k - 1];
+        // avoid "a.m.." when an answer ending in '.' meets a full stop
+        if (prev != null && /[.!?]["\u201d]?$/.test(prev) && seg.charAt(0) === '.') seg = seg.slice(1);
+      }
+      out += esc(seg); plain += seg;
+      if (k < parts.length - 1) {
+        var a = answers[k];
+        if (a == null) { out += '<span class="blank"></span>'; plain += '____'; }
+        else {
+          var trimmed = plain.replace(/\s+$/, '');
+          var startOfSentence = trimmed === '' || /[.!?"]$/.test(trimmed);
+          var s = startOfSentence ? cap(a) : a;
+          out += '<span class="ans">' + esc(s) + '</span>'; plain += s;
+        }
+      }
+    }
+    return out;
+  }
+  function blackHTML(black, answers, small) {
+    return '<div class="card black' + (small ? ' small' : '') + '" data-pick="' + black.pick + '"><div>' + fillHTML(black, answers || []) +
+      '</div><div class="brand"><span>Cards Against Sanity</span>' + (black.pick > 1 ? '<span class="pickbadge">PICK ' + black.pick + '</span>' : '') + '</div></div>';
+  }
+
+  // ---------- state ----------
+  var defaults = { names: ['', '', ''], target: 7, family: false, rando: true, bots: 0 };
+  var settings = (function () {
+    var s = store.get(KEY_SETTINGS);
+    var d = JSON.parse(JSON.stringify(defaults));
+    if (s && typeof s === 'object') {
+      if (Array.isArray(s.names) && s.names.length >= 1) d.names = s.names.slice(0, 10).map(function (n) { return String(n || '').slice(0, 16); });
+      if (typeof s.target === 'number' && s.target >= 3 && s.target <= 20) d.target = s.target;
+      d.family = !!s.family; d.rando = s.rando !== false;
+      if (typeof s.bots === 'number' && s.bots >= 0 && s.bots <= MAX_BOTS) d.bots = Math.floor(s.bots);
+    }
+    return d;
+  })();
+  var G = null; // current game
+  var ui = { sel: [], judgeSel: null, setupErr: '', swappedThisTurn: false };
+
+  function saveSettings() { store.set(KEY_SETTINGS, settings); }
+  function saveGame() { if (G) store.set(KEY_GAME, G); }
+  function loadGame() {
+    var g = store.get(KEY_GAME);
+    try {
+      if (g && Array.isArray(g.players) && g.players.length >= 3 && g.black && card(g.black) && g.phase === 'czar' &&
+          g.players.every(function (p) { return Array.isArray(p.hand) && p.hand.every(function (id) { return !!card(id); }); })) return g;
+    } catch (e) { /* ignore */ }
+    return null;
+  }
+
+  // ---------- deck handling ----------
+  function newGame() {
+    var names = settings.names.map(function (n) { return n.trim(); }).filter(Boolean);
+    var players = names.map(function (n) { return { name: n, score: 0, hand: [], bot: false }; });
+    for (var bi = 0; bi < settings.bots; bi++) players.push({ name: BOT_NAMES[bi], score: 0, hand: [], bot: true, judge: true });
+    if (settings.rando) players.push({ name: BOT_NAME, score: 0, hand: [], bot: true });
+    var fam = settings.family;
+    G = {
+      players: players, target: settings.target, family: fam, round: 0, czar: -1,
+      bDraw: shuffle(BLACK.filter(function (c) { return !fam || !c.spicy; }).map(function (c) { return c.id; })), bDisc: [],
+      wDraw: shuffle(WHITE.filter(function (c) { return !fam || !c.spicy; }).map(function (c) { return c.id; })), wDisc: [],
+      black: null, subs: [], queue: [], qi: 0, order: [], last: null, phase: 'czar'
+    };
+    nextRound();
+  }
+  function drawWhite() {
+    if (!G.wDraw.length) {
+      if (!G.wDisc.length) return null;
+      G.wDraw = shuffle(G.wDisc); G.wDisc = [];
+      toast('White deck ran out: discards reshuffled');
+    }
+    return G.wDraw.pop();
+  }
+  function drawBlack() {
+    if (!G.bDraw.length) {
+      G.bDraw = shuffle(G.bDisc); G.bDisc = [];
+      toast('Black deck ran out: discards reshuffled');
+    }
+    return G.bDraw.pop();
+  }
+  function refill(p) {
+    while (p.hand.length < HAND_SIZE) { var c = drawWhite(); if (c == null) break; p.hand.push(c); }
+  }
+  function nextCzar(from) {
+    var n = G.players.length;
+    for (var i = 1; i <= n; i++) { var j = (from + i + n) % n; if (canJudge(G.players[j])) return j; }
+    return 0;
+  }
+  function canJudge(p) { return !p.bot || !!p.judge; }
+  function nextRound() {
+    G.round += 1;
+    G.czar = nextCzar(G.czar);
+    G.players.forEach(refill);
+    G.black = drawBlack();
+    G.subs = []; G.order = []; G.qi = 0; G.last = null;
+    G.queue = [];
+    var n = G.players.length;
+    for (var i = 1; i < n; i++) { var j = (G.czar + i) % n; if (!G.players[j].bot) G.queue.push(j); }
+    G.phase = 'czar';
+    saveGame();
+  }
+  function botCount() { return settings.bots + (settings.rando ? 1 : 0); }
+  function minHumans() { return Math.max(1, 3 - botCount()); }
+  function maxHumans() { return 10 - botCount(); }
+  function botSubmit() {
+    var b = card(G.black);
+    G.players.forEach(function (p, idx) {
+      if (!p.bot || idx === G.czar) return;
+      var picks = shuffle(p.hand).slice(0, b.pick);
+      p.hand = p.hand.filter(function (id) { return picks.indexOf(id) < 0; });
+      G.subs.push({ p: idx, cards: picks });
+    });
+  }
+
+  // ---------- overlay / toast ----------
+  var app = document.getElementById('app');
+  var overlay = document.getElementById('overlay');
+  var modal = document.getElementById('modal');
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+  function toast(msg) {
+    toastEl.textContent = msg; toastEl.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2600);
+  }
+  function openModal(html) {
+    modal.innerHTML = html;
+    overlay.classList.remove('hidden');
+    overlay.setAttribute('aria-hidden', 'false');
+    overlay.setAttribute('data-open', '1');
+    modal.scrollTop = 0;
+  }
+  function closeOverlays() {
+    overlay.classList.add('hidden');
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.removeAttribute('data-open');
+    modal.innerHTML = '';
+  }
+
+  // ---------- screens ----------
+  var current = { name: '', arg: null };
+  var readyTimer = null;
+  var lockUntil = 0;
+  function show(name, arg) {
+    closeOverlays(); // every screen change closes any overlay
+    var changed = current.name !== name;
+    current = { name: name, arg: arg };
+    var r = SCREENS[name](arg);
+    app.innerHTML = r.html;
+    app.setAttribute('data-screen', name);
+    app.classList.toggle('has-footer', !!r.footer);
+    try { window.scrollTo(0, 0); } catch (e) { /* ignore */ }
+    // brief tap guard so a double-tap can't hit the next screen's button by accident
+    if (changed) {
+      lockUntil = Date.now() + 350;
+      app.setAttribute('data-ready', '0');
+      if (readyTimer) clearTimeout(readyTimer);
+      readyTimer = setTimeout(function () { app.setAttribute('data-ready', '1'); }, 360);
+    }
+  }
+  function rerender() { show(current.name, current.arg); }
+  function menuBtn() { return '<button class="icon-btn" data-act="menu" aria-label="Menu">☰</button>'; }
+  function topbar(title) { return '<div class="topbar"><span class="tb-title">' + esc(title) + '</span>' + menuBtn() + '</div>'; }
+  function footer(inner) { return '<div class="footer"><div class="inner">' + inner + '</div></div>'; }
+  function scoresHTML() {
+    var max = Math.max.apply(null, G.players.map(function (p) { return p.score; }));
+    var list = G.players.map(function (p, i) { return { p: p, i: i }; }).sort(function (a, b) { return b.p.score - a.p.score; });
+    return '<ul class="scores">' + list.map(function (o) {
+      var cls = (o.i === G.czar ? 'czar ' : '') + (o.p.score === max && max > 0 ? 'lead' : '');
+      return '<li class="' + cls + '"><span>' + esc(o.p.name) + (o.p.bot ? ' 🤖' : '') + '</span><span class="pts">' + o.p.score + ' / ' + G.target + '</span></li>';
+    }).join('') + '</ul>';
+  }
+
+  var SCREENS = {
+    gate: function () {
+      return { html:
+        '<div class="pass-wrap">' +
+        '<div class="logo">A party game for terrible adults</div>' +
+        '<h1 style="font-size:46px">Cards<br>Against<br>Sanity</h1>' +
+        '<div class="panel" style="text-align:left"><p><b>18+ only.</b> Contains crude humour, innuendo, toilet jokes and general filth. Play with people who won\'t report you to HR.</p></div>' +
+        '<button class="btn" data-act="adult">I\'m 18 or older. Deal me in.</button>' +
+        '<button class="btn ghost" data-act="minor">I\'m under 18</button>' +
+        '</div>' };
+    },
+    minor: function () {
+      return { html: '<div class="pass-wrap"><div class="big-emoji">🙅</div><h2>Sorry, this one\'s for grown-ups.</h2><p class="muted">Come back when you\'re 18. Go play outside!</p><button class="btn ghost" data-act="toGate">Back</button></div>' };
+    },
+    setup: function () {
+      var saved = loadGame();
+      var minH = minHumans(), maxH = maxHumans();
+      var h = '<div class="topbar"><span class="tb-title">Game setup</span></div>' +
+        '<h1>Cards Against Sanity</h1>';
+      if (saved) h += '<div class="panel"><p style="margin-bottom:10px"><b>Saved game found</b> (round ' + saved.round + ', ' + esc(saved.players.map(function (p) { return p.name; }).join(', ')) + ')</p><button class="btn" data-act="resume">Resume saved game</button></div>';
+      h += '<div class="panel"><p class="muted" style="margin-bottom:10px">Players (' + (botCount() ? minH + '–' + maxH + ' humans + ' + botCount() + ' 🤖' : '3–10') + ')</p>';
+      settings.names.forEach(function (n, i) {
+        h += '<div class="field"><input type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" maxlength="16" placeholder="Player ' + (i + 1) + ' name" value="' + esc(n) + '" data-name="' + i + '" aria-label="Player ' + (i + 1) + ' name">' +
+          (settings.names.length > minH ? '<button class="icon-btn" data-act="delPlayer" data-i="' + i + '" aria-label="Remove player ' + (i + 1) + '">✕</button>' : '') + '</div>';
+      });
+      if (settings.names.length < maxH) h += '<button class="btn ghost" data-act="addPlayer">+ Add player</button>';
+      h += '</div>';
+      h += '<div class="panel">' +
+        '<div class="setting"><div class="lab">Points to win</div><div class="stepper"><button class="icon-btn" data-act="tgtDown" aria-label="Fewer points">−</button><span id="tgtVal">' + settings.target + '</span><button class="icon-btn" data-act="tgtUp" aria-label="More points">+</button></div></div>' +
+        '<div class="setting"><div class="lab">Hand size<small>Everyone holds 10 white cards</small></div><b style="font-size:20px">10</b></div>' +
+        '<div class="setting" id="botsSetting"><div class="lab">Bots 🤖<small>Computer players that play and judge</small>' +
+          (settings.bots ? '<span class="botnames" id="botNames">' + (BOT_NAMES.slice(0, settings.bots).map(function (n) { return '<span style="white-space:nowrap">🤖 ' + esc(n) + '</span>'; }).join(', ')) + '</span>' : '') +
+          '</div><div class="stepper"><button class="icon-btn" data-act="botsDown" aria-label="Fewer bots"' + (settings.bots <= 0 ? ' disabled' : '') + '>−</button><span id="botsVal">' + settings.bots + '</span><button class="icon-btn" data-act="botsUp" aria-label="More bots"' + (settings.bots >= MAX_BOTS ? ' disabled' : '') + '>+</button></div></div>' +
+        '<div class="setting"><div class="lab">Rando 🤖<small>A bot that plays random cards (never judges)</small></div><button class="toggle' + (settings.rando ? ' on' : '') + '" data-act="toggleRando" aria-pressed="' + settings.rando + '">' + (settings.rando ? 'ON' : 'OFF') + '</button></div>' +
+        '<div class="setting"><div class="lab">Family-ish mode<small>Leaves out the spiciest cards</small></div><button class="toggle' + (settings.family ? ' on' : '') + '" data-act="toggleFamily" aria-pressed="' + settings.family + '">' + (settings.family ? 'ON' : 'OFF') + '</button></div>' +
+        '</div>';
+      h += '<p class="err" id="setupErr">' + esc(ui.setupErr) + '</p>';
+      h += '<button class="btn" data-act="start">Start game</button>';
+      h += '<button class="btn ghost" data-act="rules">How to play</button>';
+      h += '<p class="muted center">' + BLACK.length + ' black cards · ' + WHITE.length + ' white cards</p>';
+      return { html: h };
+    },
+    czar: function () {
+      var cz = G.players[G.czar];
+      var b = card(G.black);
+      var h = topbar('Round ' + G.round) +
+        '<div class="center"><div class="muted">This round\'s Card Czar</div><div class="pass-name" style="font-size:36px">👑 ' + esc(cz.name) + (cz.bot ? ' 🤖' : '') + '</div></div>' +
+        blackHTML(b, []) +
+        '<p class="center"><b>' + (cz.bot ? 'Someone read this card out loud. ' + esc(cz.name) + ' will judge.' : esc(cz.name) + ', read this card out loud.') + '</b><br><span class="muted">' + (b.pick > 1 ? 'Everyone plays 2 cards, in order.' : 'Everyone plays 1 card.') + (G.subs.length ? ' The bots have already played. 🤖' : '') + '</span></p>' +
+        footer('<button class="btn" data-act="beginSubs">' + (G.queue.length ? 'Start: pass to ' + esc(G.players[G.queue[0]].name) : 'Reveal the answers') + '</button><button class="btn ghost" data-act="scores">Scoreboard</button>');
+      return { html: h, footer: true };
+    },
+    pass: function () {
+      var p = G.players[G.queue[G.qi]];
+      return { html: topbar('Round ' + G.round) +
+        '<div class="pass-wrap"><div class="big-emoji">📱</div><div class="muted">Pass the phone to</div><div class="pass-name">' + esc(p.name) + '</div>' +
+        '<p class="muted">Everyone else, no peeking. ' + (G.qi + 1) + ' of ' + G.queue.length + ' players.</p>' +
+        '<button class="btn" data-act="showHand">I\'m ' + esc(p.name) + ': show my cards</button></div>' };
+    },
+    pick: function () {
+      var pi = G.queue[G.qi];
+      var p = G.players[pi];
+      var b = card(G.black);
+      var answers = ui.sel.map(function (id) { return card(id).text; });
+      var h = topbar(p.name + ' · ' + p.score + ' pt' + (p.score === 1 ? '' : 's')) +
+        blackHTML(b, answers, true) +
+        '<p class="center"><b>' + (b.pick > 1 ? 'Pick 2 cards, in order (' + ui.sel.length + '/2)' : 'Pick 1 card') + '</b> <span class="muted">· tap again to unpick</span></p>' +
+        '<div class="hand">' + p.hand.map(function (id) {
+          var c = card(id); var n = ui.sel.indexOf(id);
+          return '<button class="wcard' + (n >= 0 ? ' sel' : '') + '" data-act="pickCard" data-id="' + id + '">' + esc(whiteDisplay(c.text)) +
+            (n >= 0 ? '<span class="num">' + (b.pick > 1 ? (n + 1) : '✓') + '</span>' : '') + '</button>';
+        }).join('') + '</div>' +
+        footer('<button class="btn" data-act="submit"' + (ui.sel.length === b.pick ? '' : ' disabled') + '>Hide &amp; pass</button>' +
+          '<button class="btn ghost" data-act="swapAsk"' + (p.score >= 1 ? '' : ' disabled') + '>Swap hand (costs 1 point)</button>');
+      return { html: h, footer: true };
+    },
+    passCzar: function () {
+      var cz = G.players[G.czar];
+      return { html: topbar('Round ' + G.round) +
+        '<div class="pass-wrap"><div class="big-emoji">👑</div><div class="muted">All answers are in! Pass the phone to the Card Czar</div><div class="pass-name">' + esc(cz.name) + '</div>' +
+        '<button class="btn" data-act="showJudge">I\'m ' + esc(cz.name) + ': show the answers</button></div>' };
+    },
+    botJudge: function () {
+      var cz = G.players[G.czar];
+      return { html: topbar('Round ' + G.round) +
+        '<div class="pass-wrap"><div class="big-emoji">🤖</div><div class="muted">All answers are in! The Card Czar is</div><div class="pass-name">' + esc(cz.name) + '</div>' +
+        '<div class="thinking" aria-label="Thinking"><i></i><i></i><i></i></div><p class="muted">Thinking very hard about it…</p>' +
+        blackHTML(card(G.black), [], true) + '</div>' };
+    },
+    judge: function () {
+      var b = card(G.black);
+      var h = topbar('Czar: ' + G.players[G.czar].name) +
+        blackHTML(b, [], true) +
+        '<p class="center"><b>Read each one aloud, then tap the best.</b></p>' +
+        '<div class="subs">' + G.order.map(function (si, k) {
+          var s = G.subs[si];
+          return '<button class="sub' + (ui.judgeSel === si ? ' sel' : '') + '" data-act="judgePick" data-si="' + si + '"><span class="lbl">Answer ' + String.fromCharCode(65 + k) + '</span>' +
+            fillHTML(b, s.cards.map(function (id) { return card(id).text; })) + '</button>';
+        }).join('') + '</div>' +
+        footer('<button class="btn" data-act="crown"' + (ui.judgeSel == null ? ' disabled' : '') + '>👑 Crown this answer</button>');
+      return { html: h, footer: true };
+    },
+    reveal: function () {
+      var L = G.last; var b = card(L.black); var w = G.players[L.winner];
+      var gameOver = w.score >= G.target;
+      var h = topbar('Round ' + G.round + ' result') +
+        '<div class="center"><div class="big-emoji">' + (w.bot ? '🤖' : '🏆') + '</div><h2>' + esc(w.name) + ' wins the round!</h2>' +
+        (w.bot ? '<p class="muted">Beaten by a random card generator. Have a long look at yourselves.</p>' : '') + '</div>' +
+        blackHTML(b, L.cards.map(function (id) { return card(id).text; })) +
+        '<div class="reveal-list">' + L.all.filter(function (s) { return s.p !== L.winner; }).map(function (s) {
+          return '<div class="r"><b>' + esc(G.players[s.p].name) + ':</b> ' + esc(s.cards.map(function (id) { return whiteDisplay(card(id).text); }).join(' / ')) + '</div>';
+        }).join('') + '</div>' +
+        '<div class="panel">' + scoresHTML() + '</div>' +
+        footer(gameOver ? '<button class="btn" data-act="toWin">See the champion 🏆</button>' : '<button class="btn" data-act="nextRound">Next round</button>');
+      return { html: h, footer: true };
+    },
+    win: function () {
+      var w = G.players.slice().sort(function (a, b) { return b.score - a.score; })[0];
+      return { html:
+        '<div class="center" style="margin-top:30px"><div class="big-emoji">🎉🏆🎉</div><div class="muted" style="margin-top:12px">Winner after ' + G.round + ' rounds</div>' +
+        '<div class="pass-name">' + esc(w.name) + (w.bot ? ' 🤖' : '') + '</div><p style="margin-top:8px"><b>' + (w.bot ? esc(w.name) + ' wins. Nobody will ever speak of this.' : 'is officially the least sane person here.') + '</b></p></div>' +
+        '<div class="panel">' + scoresHTML() + '</div>' +
+        '<button class="btn" data-act="rematch">Rematch (same players)</button>' +
+        '<button class="btn ghost" data-act="toSetup">New game / settings</button>' };
+    }
+  };
+
+  // ---------- modals ----------
+  function rulesModal() {
+    openModal('<h2>How to play</h2><ol class="rules">' +
+      '<li>Each round, one player is the <b>Card Czar</b> and reads the black card aloud.</li>' +
+      '<li>Pass the phone around. Each player privately picks the funniest white card (or 2 cards, in order, for <b>Pick 2</b>), then taps <b>Hide &amp; pass</b>.</li>' +
+      '<li>The Czar sees every answer anonymously, reads them out, and crowns a winner. The winner gets 1 point.</li>' +
+      '<li>Hands refill to 10 and the Czar role moves on. First to the target score wins.</li>' +
+      '<li><b>Swap hand:</b> spend 1 point to trade in your whole hand.</li>' +
+      '<li><b>Bots 🤖</b> play automatically (no phone passing) and take turns as Czar, picking a winner at random.</li>' +
+      '<li><b>Rando</b> is a bot that plays random cards. If Rando wins, everyone should feel bad.</li></ol>' +
+      '<button class="btn" data-act="closeModal">Got it</button>');
+  }
+  function menuModal() {
+    openModal('<h2>Scoreboard</h2>' + scoresHTML() +
+      '<p class="muted">Round ' + G.round + ' · first to ' + G.target + ' · ' + G.wDraw.length + ' white / ' + G.bDraw.length + ' black cards left in the decks</p>' +
+      '<button class="btn" data-act="closeModal">Back to game</button>' +
+      '<button class="btn ghost" data-act="rulesFromMenu">How to play</button>' +
+      '<button class="btn ghost" data-act="quitAsk">Quit game</button>');
+  }
+  function scoresModal() {
+    openModal('<h2>Scoreboard</h2>' + scoresHTML() + '<button class="btn" data-act="closeModal">Close</button>');
+  }
+
+  // ---------- actions ----------
+  function readNames() {
+    var inputs = app.querySelectorAll('input[data-name]');
+    for (var i = 0; i < inputs.length; i++) settings.names[+inputs[i].getAttribute('data-name')] = inputs[i].value.slice(0, 16);
+  }
+  function validate() {
+    var names = settings.names.map(function (n) { return n.trim(); });
+    if (names.some(function (n) { return !n; })) return 'Give every player a name (or remove the empty slot).';
+    var lower = names.map(function (n) { return n.toLowerCase(); });
+    if (lower.some(function (n, i) { return lower.indexOf(n) !== i; })) return 'Every player needs a different name.';
+    if (settings.rando && lower.indexOf(BOT_NAME.toLowerCase()) >= 0) return '"Rando" is taken by the bot. Pick another name.';
+    var taken = BOT_NAMES.slice(0, settings.bots).filter(function (b) { return lower.indexOf(b.toLowerCase()) >= 0; });
+    if (taken.length) return '"' + taken[0] + '" is taken by a bot. Pick another name.';
+    var total = names.length + botCount();
+    if (total < 3) return 'You need at least 3 players (bots count).';
+    if (total > 10) return 'Maximum 10 players.';
+    if (names.length < 1) return 'You need at least 1 human player.';
+    return '';
+  }
+  var ACTIONS = {
+    adult: function () { show('setup'); },
+    minor: function () { show('minor'); },
+    toGate: function () { show('gate'); },
+    addPlayer: function () { readNames(); settings.names.push(''); saveSettings(); ui.setupErr = ''; rerender(); },
+    delPlayer: function (el) { readNames(); settings.names.splice(+el.getAttribute('data-i'), 1); saveSettings(); ui.setupErr = ''; rerender(); },
+    tgtDown: function () { readNames(); settings.target = Math.max(3, settings.target - 1); saveSettings(); rerender(); },
+    tgtUp: function () { readNames(); settings.target = Math.min(20, settings.target + 1); saveSettings(); rerender(); },
+    toggleRando: function () {
+      readNames(); settings.rando = !settings.rando;
+      while (settings.names.length < minHumans()) settings.names.push('');
+      if (settings.names.length > maxHumans()) settings.names = settings.names.slice(0, maxHumans());
+      saveSettings(); ui.setupErr = ''; rerender();
+    },
+    botsDown: function () { readNames(); settings.bots = Math.max(0, settings.bots - 1); while (settings.names.length < minHumans()) settings.names.push(''); saveSettings(); ui.setupErr = ''; rerender(); },
+    botsUp: function () {
+      readNames(); if (settings.bots >= MAX_BOTS) return;
+      settings.bots += 1;
+      if (settings.names.length > maxHumans()) settings.names = settings.names.slice(0, maxHumans());
+      saveSettings(); ui.setupErr = ''; rerender();
+    },
+    toggleFamily: function () { readNames(); settings.family = !settings.family; saveSettings(); rerender(); },
+    rules: function () { rulesModal(); },
+    start: function () {
+      readNames(); saveSettings();
+      var err = validate();
+      if (err) { ui.setupErr = err; rerender(); return; }
+      ui.setupErr = '';
+      newGame(); botSubmit(); show('czar');
+    },
+    resume: function () { var g = loadGame(); if (!g) { rerender(); return; } G = g; G.subs = []; G.qi = 0; botSubmit(); show('czar'); },
+    menu: function () { if (G) menuModal(); },
+    scores: function () { scoresModal(); },
+    closeModal: function () { closeOverlays(); },
+    rulesFromMenu: function () { rulesModal(); },
+    quitAsk: function () {
+      openModal('<h2>Quit this game?</h2><p class="muted">Scores will be lost.</p><div class="row"><button class="btn ghost" data-act="closeModal">Keep playing</button><button class="btn danger" data-act="quitYes">Quit</button></div>');
+    },
+    quitYes: function () { store.del(KEY_GAME); G = null; show('setup'); },
+    beginSubs: function () { G.phase = 'subs'; G.qi = 0; if (G.queue.length) show('pass'); else toJudge(); },
+    showHand: function () { ui.sel = []; show('pick'); },
+    pickCard: function (el) {
+      var id = el.getAttribute('data-id'); var b = card(G.black);
+      var n = ui.sel.indexOf(id);
+      if (n >= 0) ui.sel.splice(n, 1);
+      else if (b.pick === 1) ui.sel = [id];
+      else if (ui.sel.length < b.pick) ui.sel.push(id);
+      else { toast('You\'ve picked 2. Tap one to unpick it.'); return; }
+      var y = window.pageYOffset || 0;
+      rerender();
+      try { window.scrollTo(0, y); } catch (e) { /* ignore */ }
+    },
+    swapAsk: function () {
+      var p = G.players[G.queue[G.qi]];
+      if (p.score < 1) return;
+      openModal('<h2>Swap your whole hand?</h2><p>You\'ll trade in all 10 cards for fresh ones. This costs <b>1 point</b> (you have ' + p.score + ').</p><div class="row"><button class="btn ghost" data-act="closeModal">Cancel</button><button class="btn" data-act="swapYes">Swap (−1)</button></div>');
+    },
+    swapYes: function () {
+      var p = G.players[G.queue[G.qi]];
+      if (p.score < 1) { closeOverlays(); return; }
+      p.score -= 1;
+      G.wDisc = G.wDisc.concat(p.hand); p.hand = []; refill(p); ui.sel = [];
+      show('pick'); toast('New hand dealt. −1 point.');
+    },
+    submit: function () {
+      var b = card(G.black); if (ui.sel.length !== b.pick) return;
+      var pi = G.queue[G.qi]; var p = G.players[pi]; var sel = ui.sel.slice();
+      p.hand = p.hand.filter(function (id) { return sel.indexOf(id) < 0; });
+      G.subs.push({ p: pi, cards: sel }); ui.sel = [];
+      G.qi += 1;
+      if (G.qi < G.queue.length) show('pass'); else toJudge();
+    },
+    showJudge: function () { show('judge'); },
+    judgePick: function (el) {
+      ui.judgeSel = +el.getAttribute('data-si');
+      var y = window.pageYOffset || 0; rerender(); try { window.scrollTo(0, y); } catch (e) { /* ignore */ }
+    },
+    crown: function () {
+      if (ui.judgeSel == null) return;
+      crownSub(ui.judgeSel);
+    },
+    nextRound: function () { nextRound(); botSubmit(); show('czar'); },
+    toWin: function () { store.del(KEY_GAME); show('win'); },
+    rematch: function () { newGame(); botSubmit(); show('czar'); },
+    toSetup: function () { G = null; store.del(KEY_GAME); show('setup'); }
+  };
+  function crownSub(si) {
+    var s = G.subs[si];
+    G.players[s.p].score += 1;
+    G.last = { black: G.black, winner: s.p, cards: s.cards.slice(), all: G.subs.slice() };
+    G.subs.forEach(function (x) { G.wDisc = G.wDisc.concat(x.cards); });
+    G.bDisc.push(G.black);
+    ui.judgeSel = null;
+    G.phase = 'reveal';
+    show('reveal');
+  }
+  var botTimer = null;
+  function toJudge() {
+    G.order = shuffle(G.subs.map(function (_, i) { return i; }));
+    ui.judgeSel = null;
+    if (G.players[G.czar].bot) {
+      show('botJudge');
+      var game = G, round = G.round;
+      if (botTimer) clearTimeout(botTimer);
+      botTimer = setTimeout(function () {
+        botTimer = null;
+        if (G !== game || G.round !== round || current.name !== 'botJudge' || G.phase === 'reveal') return;
+        try { crownSub(G.order[Math.floor(rand() * G.order.length)]); } catch (e) { closeOverlays(); toast('Oops, something went wrong.'); }
+      }, BOT_THINK_MS);
+    } else show('passCzar');
+  }
+
+  function onTap(ev) {
+    var el = ev.target && ev.target.closest ? ev.target.closest('[data-act]') : null;
+    if (!el || el.disabled) return;
+    if (Date.now() < lockUntil && !overlay.contains(el)) return;
+    var fn = ACTIONS[el.getAttribute('data-act')];
+    if (!fn) return;
+    ev.preventDefault();
+    try { fn(el); } catch (e) {
+      // never leave the user stuck behind an overlay
+      closeOverlays();
+      toast('Oops, something went wrong.');
+      if (window.console && console.error) console.error(e);
+    }
+  }
+  document.addEventListener('click', onTap, false);
+  overlay.addEventListener('click', function (ev) { if (ev.target === overlay) closeOverlays(); }, false);
+  app.addEventListener('input', function (ev) {
+    var t = ev.target;
+    if (t && t.hasAttribute && t.hasAttribute('data-name')) { settings.names[+t.getAttribute('data-name')] = t.value.slice(0, 16); saveSettings(); }
+  }, false);
+
+  // test hook (read-only snapshot)
+  window.__CAS = { counts: function () { return { black: BLACK.length, white: WHITE.length, pick2: BLACK.filter(function (c) { return c.pick === 2; }).length, blackSafe: BLACK.filter(function (c) { return !c.spicy; }).length, whiteSafe: WHITE.filter(function (c) { return !c.spicy; }).length }; },
+    state: function () { return G ? JSON.parse(JSON.stringify(G)) : null; }, fill: function (bid, texts) { return fillHTML(card(bid), texts); } };
+
+  show('gate');
+})();
+</script>
+</body>
+</html>
